@@ -1,0 +1,6 @@
+[lms.djangoapp]
+eol_directmessage = eol_directmessage.apps:EolDirectMessageConfig
+
+[openedx.course_tab]
+eol_directmessage = eol_directmessage.plugins:EolDirectMessageTab
+
