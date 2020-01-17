@@ -3,7 +3,9 @@ from __future__ import absolute_import
 from django.conf.urls import url
 from django.conf import settings
 
-from .views import EolDirectMessageFragmentView
+from .views import EolDirectMessageFragmentView, get_chats
+
+from django.contrib.auth.decorators import login_required
 
 
 urlpatterns = (
@@ -11,7 +13,14 @@ urlpatterns = (
         r'courses/{}/direct_message$'.format(
             settings.COURSE_ID_PATTERN,
         ),
-        EolDirectMessageFragmentView.as_view(),
+        login_required(EolDirectMessageFragmentView.as_view()),
         name='directmessage_view',
+    ),
+    url(
+        r'direct_message/get_chats/(?P<user_id>\d+)/{}/$'.format(
+            settings.COURSE_ID_PATTERN,
+        ),
+        login_required(get_chats),
+        name='get_chats',
     ),
 )

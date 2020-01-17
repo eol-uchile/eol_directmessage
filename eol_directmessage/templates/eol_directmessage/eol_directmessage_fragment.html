@@ -34,7 +34,41 @@
 </style>
 
 <main id="main" aria-label="Content" tabindex="-1">
-    <div class="container my-4">
-        ${course}
+    <div class="container" id="chats">
+
     </div>
+    <div class="container">
+        %for student in students:
+            ${student.profile.name}<br/>
+        %endfor
+    </div>
+
+    <script>
+        $( document ).ready(function() {
+            get_chats();
+            
+            function get_chats(){
+                var user_id = "${user_id}";
+                var url = "${url_get_chats}";
+                $.ajax({
+                    url:   url,
+                    beforeSend: function () {
+                        $('#chats').html("cargando");
+                    },
+                    success:  function (response) {
+                        console.log(response);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert("Error, intente nuevamente más tarde");
+                        console.log(xhr);
+                        console.log(ajaxOptions);
+                        console.log(thrownError);
+                    },
+                    complete: function() {
+                        $('#chats').html("cargado!!!!!");
+                    }
+                });
+            }
+        });
+    </script>
 </main>
