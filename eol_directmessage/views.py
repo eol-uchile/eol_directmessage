@@ -13,6 +13,12 @@ from django.contrib.auth.models import User
 
 from django.urls import reverse
 from django.http import HttpResponse
+from bson import json_util
+import json
+from django.core import serializers
+
+from django.db.models import Q, Min, Max
+from models import EolMessage
 
 import logging
 logger = logging.getLogger(__name__)
@@ -34,8 +40,8 @@ def _get_context(request, course_id):
         "course" : course,
         "students" : enrolled_students,
         "user_id" : request.user.id,
+        "username" : request.user.profile.name,
         "url_get_chats" : reverse('get_chats', kwargs={
-            'user_id' : request.user.id,
             'course_id' : course_id
         }),
     }
@@ -46,7 +52,20 @@ def get_all_students(course_key):
             courseenrollment__is_active=1
     )
 
-def get_chats(request, user_id, course_id):
-    logger.warning("OK")
-    return HttpResponse()
+def get_chats(request, course_id):
+    """
+        get_chats return json with the user chats.
+        max_viewed will be 'False' if the user has new messages
+    """
+    user_id = request.user.id
+    user_chats = EolMessage.objects.filter(
+        Q(sender_user=user_id) | Q(receiver_user=user_id),
+        course_id = course_id,
+        deleted_at__isnull=True
+    ).values('sender_user__profile__name', 'receiver_user__profile__name').annotate(min_viewed = Min('viewed'), max_date = Max('created_at')).order_by('-max_date')
+    user_chats = list(user_chats)
+    #data = serializers.serialize('json', user_chats)
+    #struct = json.loads(data)
+    data = json.dumps(user_chats, default=json_util.default)
+    return HttpResponse(data)
 

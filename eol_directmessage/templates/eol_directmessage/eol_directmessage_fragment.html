@@ -34,13 +34,19 @@
 </style>
 
 <main id="main" aria-label="Content" tabindex="-1">
-    <div class="container" id="chats">
+    <div class="container">
+        Chats:
+        <div id="chats"></div>
 
     </div>
     <div class="container">
+        <br><br>
+        Listado de estudiantes<br>
+        <ul>
         %for student in students:
-            ${student.profile.name}<br/>
+            <li>${student.profile.name}</li>
         %endfor
+        </ul>
     </div>
 
     <script>
@@ -57,6 +63,16 @@
                     },
                     success:  function (response) {
                         console.log(response);
+                        user_data = response;
+                        $('#chats').html('');
+                        for(chat of user_data) {
+                            username = "matsalinas";
+                            if (username == chat.sender_user__profile__name) 
+                                $('#chats').append(chat.receiver_user__profile__name);
+                            else 
+                                $('#chats').append(chat.sender_user__profile__name);
+                            $('#chats').append(" - " + chat.min_viewed + "<br/>");
+                        }
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         alert("Error, intente nuevamente más tarde");
@@ -65,7 +81,6 @@
                         console.log(thrownError);
                     },
                     complete: function() {
-                        $('#chats').html("cargado!!!!!");
                     }
                 });
             }
