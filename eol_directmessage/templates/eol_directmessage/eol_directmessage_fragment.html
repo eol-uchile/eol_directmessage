@@ -36,8 +36,12 @@
 <main id="main" aria-label="Content" tabindex="-1">
     <div class="container">
         Chats:
-        <div id="chats"></div>
+        <div id="list"></div>
 
+    </div>
+    <br/>
+    <div class="container">
+        <div id="messages"></div>
     </div>
     <div class="container">
         <br><br>
@@ -50,28 +54,52 @@
     </div>
 
     <script>
+        var DEFAULT_USERNAME = "${default_username}";
         $( document ).ready(function() {
             get_chats();
             
             function get_chats(){
-                var user_id = "${user_id}";
-                var url = "${url_get_chats}";
+                var url = "${url_get_student_chats}";
                 $.ajax({
                     url:   url,
                     beforeSend: function () {
-                        $('#chats').html("cargando");
+                        $('#list').html("cargando");
                     },
                     success:  function (response) {
                         console.log(response);
                         user_data = response;
-                        $('#chats').html('');
+                        $('#list').html('');
                         for(chat of user_data) {
-                            username = "matsalinas";
-                            if (username == chat.sender_user__profile__name) 
-                                $('#chats').append(chat.receiver_user__profile__name);
-                            else 
-                                $('#chats').append(chat.sender_user__profile__name);
-                            $('#chats').append(" - " + chat.min_viewed + "<br/>");
+                            generate_list_html(chat);
+                        }
+                        $('.open_chat').click(get_messages);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert("Error, intente nuevamente más tarde");
+                        console.log(xhr);
+                        console.log(ajaxOptions);
+                        console.log(thrownError);
+                    },
+                    complete: function() {
+                    }
+                });
+            }
+
+            function get_messages() {
+                var other_username = $(this).attr('id');
+                var url = "${url_get_messages}";
+                url = url.replace(DEFAULT_USERNAME, other_username);
+                $.ajax({
+                    url:   url,
+                    beforeSend: function () {
+                        $('#messages').html("cargando");
+                    },
+                    success:  function (response) {
+                        console.log(response);
+                        data = response;
+                        $('#messages').html('');
+                        for(message of data) {
+                            generate_messages_html(message);
                         }
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
@@ -84,6 +112,34 @@
                     }
                 });
             }
+
+            function generate_list_html(chat) {
+                username = "${user.username}";
+                if (username == chat.sender_user__profile__name) {
+                    other_username = chat.receiver_user__username;
+                    $('#list').append("<span class='open_chat' id='" + other_username + "'> - " + chat.receiver_user__profile__name + "</span>");
+                } else {
+                    other_username = chat.sender_user__username; 
+                    $('#list').append("<span class='open_chat' id='" + other_username + "'> - " + chat.sender_user__profile__name + "</span>");
+                }
+                if (chat.min_viewed || username == chat.sender_user__profile__name)
+                    $('#list').append(" - No tienes nuevos mensajes <br/>");
+                else
+                    $('#list').append(" - <strong>Tienes nuevos mensajes</strong> <br/>");
+            }
+
+            function generate_messages_html(message) {
+                username = "${user.username}";
+                date = new Date(message.created_at.$date);
+                message_text =  message.sender_user__profile__name + "(" + date + "): " + message.text + "<br/>";
+                if ( (message.receiver_user__username == username) && !message.viewed)
+                {
+                    $('#messages').append("<strong>" + message_text + "</strong>");
+                    // set message.viewed TRUE
+                } else {
+                    $('#messages').append(message_text);
+                }
+            };
         });
     </script>
 </main>
