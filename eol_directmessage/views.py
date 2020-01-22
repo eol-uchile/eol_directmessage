@@ -68,8 +68,8 @@ def get_student_chats(request, course_id):
     user_id = request.user.id
     
     # getting user messages as sender or receiver
-    sender_chats = EolMessage.objects.filter(
-        Q(sender_user=user_id),
+    user_chats = EolMessage.objects.filter(
+        Q(sender_user=user_id) | Q(receiver_user=user_id),
         course_id = course_id,
         deleted_at__isnull=True
     ).values(
@@ -80,24 +80,8 @@ def get_student_chats(request, course_id):
     ).annotate(
         min_viewed = Min('viewed'),
         max_date = Max('created_at')
-    )
+    ).order_by('-max_date')
 
-    receiver_chats = EolMessage.objects.filter(
-        Q(receiver_user=user_id),
-        course_id = course_id,
-        deleted_at__isnull=True
-    ).values(
-        'sender_user__profile__name', 
-        'receiver_user__profile__name',
-        'sender_user__username',
-        'receiver_user__username'
-    ).annotate(
-        min_viewed = Min('viewed'),
-        max_date = Max('created_at')
-    )
-
-    # Merge two QuerySet and order by date
-    user_chats = (sender_chats | receiver_chats).order_by('-max_date')
     user_chats = list(user_chats)
 
     # delete duplicated

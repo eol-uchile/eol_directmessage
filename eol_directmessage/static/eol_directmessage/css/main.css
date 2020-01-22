@@ -1,0 +1,120 @@
+
+#search_input {
+    background-image: url('/css/searchicon.png'); /* Add a search icon to input */
+    background-position: 10px 12px; /* Position the search icon */
+    background-repeat: no-repeat; /* Do not repeat the icon image */
+    width: 100%; /* Full-width */
+    font-size: 16px; /* Increase font-size */
+    padding: 12px 20px 12px 40px; /* Add some padding */
+    border: 1px solid #ddd; /* Add a grey border */
+}
+
+#all_students_list {
+    /* Remove default list styling */
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#all_students_list li {
+    margin-bottom: 0px;
+}
+
+#all_students_list li a {
+    border: 1px solid #ddd; /* Add a border to all links */
+    margin-top: -1px; /* Prevent double borders */
+    background-color: #f6f6f6; /* Grey background color */
+    padding: 12px; /* Add some padding */
+    text-decoration: none; /* Remove default text underline */
+    font-size: 18px; /* Increase the font-size */
+    color: black; /* Add a black text color */
+    display: block; /* Make it into a block element to fill the whole list */
+}
+
+#all_students_list li a:hover:not(.header) {
+    background-color: #eee; /* Add a hover effect to all links, except for headers */
+}
+
+
+
+.loading {
+    height: 50px;
+    margin: auto;
+    display: block;
+}
+
+#messages-loading {
+    display: none;
+}
+
+.dm-header {
+    margin-top: 10px;
+}
+
+#all_students_list {
+    margin: 10px 0;
+}
+
+
+/*
+    Chat
+*/
+.dmWrapper {
+    padding: 10px 10px;
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+    align-self: flex-end;
+    color: #fff;
+}
+.inlineContainer {
+    display: inline-flex;
+}
+.inlineContainer.own {
+    flex-direction: row-reverse;
+}
+.inlineIcon {
+    width:20px;
+    object-fit: contain;
+}
+.DM {
+    min-width: 60px;
+    max-width: 600px;
+    padding: 14px 18px;
+    margin: 6px 8px;
+    background-color: #0f98e3;
+    border-radius: 16px 16px 0 16px;
+    border: 1px solid #0f98e3;
+
+}
+.otherDM {
+    min-width: 60px;
+    max-width: 600px;
+    padding: 14px 18px;
+    margin: 6px 8px;
+    background-color: #0f98e3;
+    border-radius: 16px 16px 16px 0;
+    border: 1px solid #0f98e3;
+
+}
+.own {
+    align-self: flex-end;
+}
+.other {
+    align-self: flex-start;
+}
+span.own,
+span.other{
+    font-size: 14px;
+    color: grey;
+}
+
+
+#dmChats{
+    overflow-y: scroll;
+    max-height:300px;
+}
+
+#dmChats div {
+    display: flex !important;
+}
