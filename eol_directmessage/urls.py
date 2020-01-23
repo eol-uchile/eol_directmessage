@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from django.conf.urls import url
 from django.conf import settings
 
-from .views import EolDirectMessageFragmentView, get_student_chats, get_messages
+from .views import EolDirectMessageFragmentView, get_student_chats, get_messages, new_message
 
 from django.contrib.auth.decorators import login_required
 
@@ -30,5 +30,10 @@ urlpatterns = (
         ),
         login_required(get_messages),
         name='get_messages',
+    ),
+    url(
+        r'direct_message/new_message',
+        login_required(new_message),
+        name='new_message',
     ),
 )

@@ -1,5 +1,50 @@
 $( document ).ready(function() {
+    $("#dmChats").hide();
+    $(".send-message").hide();
     get_chats();
+    
+    $('#new-message-form').submit(function(e) {
+                
+        var url = URL_NEW_MESSAGE;
+        data = $('#new-message-form').serializeArray();
+        params = {
+            "message" : data[1].value,
+            "other_username" : data[2].value,
+            "course_id" : COURSE_ID
+        }
+        console.log(params);
+        $.ajax({
+            data:  params,
+            url:   url,
+            type:  'post',
+            beforeSend: function () {
+                /*
+                * Set submit button disabled
+                */
+                $('.submit-message').prop("disabled", true);
+            },
+            success:  function (response) {
+                /*
+                * Set input status: correct
+                */
+                $('#new-message').val('');
+                get_messages(params.other_username);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error, intente nuevamente más tarde");
+                console.log(xhr);
+                console.log(ajaxOptions);
+                console.log(thrownError);
+            },
+            complete: function() {
+                /*
+                * Set submit button enabled
+                */
+                $('.submit-message').prop("disabled", false);
+            }
+        });
+        e.preventDefault();
+    });
 
     function get_chats(){
         var url = URL_GET_STUDENT_CHAT;
@@ -9,13 +54,15 @@ $( document ).ready(function() {
                 $('#list-loading').show();
             },
             success:  function (response) {
-                console.log(response);
                 user_data = response;
                 $('#list').html('');
                 for(chat of user_data) {
                     generate_list_html(chat);
                 }
-                $('.open_chat').click(get_messages);
+                $('.open_chat').click(function() {
+                    other_username = $(this).attr('id');
+                    get_messages(other_username);
+                });
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert("Error, intente nuevamente más tarde");
@@ -29,8 +76,8 @@ $( document ).ready(function() {
         });
     }
 
-    function get_messages() {
-        var other_username = $(this).attr('id');
+    function get_messages(other_username) {
+        $('#username-message').val(other_username);
         var url = URL_GET_MESSAGES;
         url = url.replace(DEFAULT_USERNAME, other_username);
         $.ajax({
@@ -45,6 +92,8 @@ $( document ).ready(function() {
                 for(message of data) {
                     generate_messages_html(message);
                 }
+                $("#dmChats").show();
+                $(".send-message").show();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert("Error, intente nuevamente más tarde");
@@ -101,17 +150,5 @@ $( document ).ready(function() {
         
 
         $('#dmChats').append(dmWrapper);
-        /*
-        username = USER_USERNAME;
-        date = new Date(message.created_at.$date);
-        message_text =  message.sender_user__profile__name + "(" + date + "): " + message.text + "<br/>";
-        if ( (message.receiver_user__username == username) && !message.viewed)
-        {
-            $('#messages').append("<strong>" + message_text + "</strong>");
-            // set message.viewed TRUE
-        } else {
-            $('#messages').append(message_text);
-        }
-        */
     };
 });

@@ -53,24 +53,35 @@
             <div class="col-md-7">
                 <img id="messages-loading" class="loading" src="${static.url('eol_directmessage/img/loader.svg')}" alt="Cargando ...">
                 <div id="dmChats"></div>
+                <div class="input-group send-message">
+                    <form id="new-message-form">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                        <input type="text" class="form-control rounded-0" name="new-message" id="new-message" placeholder="Nuevo Mensaje" required>
+                        <input type="hidden" name="username-message" id="username-message">
+                        <div class="input-group-prepend">
+                            <button type="submit" vlaue="submit" class="course-target-link submit-message">Enviar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="container">
-        
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="dm-header">Iniciar una nueva conversación</h2>
 
-        
-
-        <h2 class="dm-header">Iniciar una nueva conversación</h2>
-
-        <input type="text" id="search_input" onkeyup="search()" placeholder="Buscar por nombre">
-        <ul id="all_students_list">
-            %for student in students:
-            <li>
-                <a href="#" class="list-${student.username}">${student.profile.name}</a>
-            </li>
-            %endfor
-        </ul>
+                <input type="text" id="search_input" onkeyup="search()" placeholder="Buscar por nombre">
+                <ul id="all_students_list">
+                    %for student in students:
+                    <li>
+                        <a href="#" class="list-${student.username}">${student.profile.name}</a>
+                    </li>
+                    %endfor
+                </ul>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -79,6 +90,8 @@
         var URL_GET_STUDENT_CHAT = "${url_get_student_chats}";
         var URL_GET_MESSAGES = "${url_get_messages}";
         var USER_USERNAME = "${user.username}";
+        var URL_NEW_MESSAGE = "${url_new_message}";
+        var COURSE_ID = "${course.id}";
     </script>
     <script type="text/javascript" src="${static.url('eol_directmessage/js/search.js')}"></script>
     <script type="text/javascript" src="${static.url('eol_directmessage/js/main.js')}"></script>

@@ -1,11 +1,8 @@
 
 #search_input {
-    background-image: url('/css/searchicon.png'); /* Add a search icon to input */
-    background-position: 10px 12px; /* Position the search icon */
     background-repeat: no-repeat; /* Do not repeat the icon image */
     width: 100%; /* Full-width */
     font-size: 16px; /* Increase font-size */
-    padding: 12px 20px 12px 40px; /* Add some padding */
     border: 1px solid #ddd; /* Add a grey border */
 }
 
@@ -112,9 +109,31 @@ span.other{
 
 #dmChats{
     overflow-y: scroll;
-    max-height:300px;
+    height:300px;
 }
 
 #dmChats div {
     display: flex !important;
+}
+
+
+
+.send-message {
+    border: solid 1px green;
+    position: relative;
+}
+.send-message input[type=text] {
+    border: none;
+    width: 100%;
+    padding-right: 123px;
+}
+.send-message .input-group-prepend {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;z-index:9;
+}
+.send-message .submit-message {
+    height: 35px;
+    padding: 4px 20px !important;
 }

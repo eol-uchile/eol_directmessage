@@ -50,7 +50,8 @@ def _get_context(request, course_id):
         "url_get_messages" : reverse('get_messages', kwargs={
             'username' : DEFAULT_USERNAME,
             'course_id' : course_id
-        })
+        }),
+        "url_new_message" : reverse('new_message'),
     }
 
 
@@ -118,3 +119,27 @@ def get_messages(request, username, course_id):
     messages = list(messages)
     data = json.dumps(messages, default=json_util.default)
     return HttpResponse(data)
+
+def new_message(request):
+    """
+       
+    """
+    # check method and params
+    if request.method != "POST":
+        return HttpResponse(status=400)
+    if 'message' not in request.POST or 'other_username' not in request.POST or 'course_id' not in request.POST:
+        return HttpResponse(status=400)
+
+    course_id = request.POST['course_id']
+    message = request.POST['message']
+    other_username = request.POST['other_username']
+    other_user = User.objects.get(username=other_username)
+    user = request.user
+
+    message = EolMessage.objects.create(
+        course_id=course_id,
+        sender_user = user,
+        receiver_user = other_user,
+        text=message.strip()
+    )
+    return HttpResponse(status=201)
