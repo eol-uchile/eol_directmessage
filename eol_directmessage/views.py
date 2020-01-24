@@ -85,16 +85,16 @@ def get_student_chats(request, course_id):
 
     user_chats = list(user_chats)
 
-    # delete duplicated
+    # "delete" duplicated
     users_already = [] # list of other students usernames
+    new_user_chats = []
     for u in user_chats:
         other_user = u["sender_user__username"] if u["sender_user__username"] != request.user.username else u["receiver_user__username"] # get student username
-        if other_user in users_already:
-            user_chats.remove(u) # remove object if already exists on the list
-        else:
+        if other_user not in users_already:
             users_already.append(other_user)
+            new_user_chats.append(u)
 
-    data = json.dumps(user_chats, default=json_util.default)
+    data = json.dumps(new_user_chats, default=json_util.default)
     return HttpResponse(data)
 
 def get_messages(request, username, course_id):
