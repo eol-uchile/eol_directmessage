@@ -116,8 +116,16 @@ def get_messages(request, username, course_id):
         'viewed', 
         'created_at'
     ).order_by('created_at')
-    messages = list(messages)
-    data = json.dumps(messages, default=json_util.default)
+    data = json.dumps(list(messages), default=json_util.default)
+
+    '''
+        Filter messages and set viewed = True
+    '''
+    not_viewed = messages.filter(
+        receiver_user=user_id,
+        viewed = False
+    ).update(viewed=True)
+    
     return HttpResponse(data)
 
 def new_message(request):
