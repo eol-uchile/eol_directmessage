@@ -63,6 +63,8 @@ $( document ).ready(function() {
                     other_username = $(this).attr('id');
                     get_messages(other_username);
                 });
+                // set keyup function after all student list is loaded and uptaded  
+                $('#search_input').keyup(search);
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert("Error, intente nuevamente más tarde");
@@ -129,7 +131,7 @@ $( document ).ready(function() {
         username = USER_USERNAME;
         date = new Date(message.created_at.$date);
         if ( message.receiver_user__username == username ) {
-            let dm = '<div class="otherDM other">' + message.text + '</div>';
+            let dm = '<div class="otherDM other chat-message">' + escapeHtml(message.text) + '</div>';
             let detail = '<span class="other">' + message.sender_user__profile__name + ' - ' + date.toLocaleString() + '</span>';
             var dmWrapper = '<div class="dmWrapper">' +
                                 '<div class="inlineContainer">' +
@@ -138,7 +140,7 @@ $( document ).ready(function() {
                                 detail +
                             '</div>';
         } else {
-            let dm = '<div class="DM own">' + message.text + '</div>';
+            let dm = '<div class="DM own chat-message">' + escapeHtml(message.text) + '</div>';
             let detail = '<span class="own">' + message.sender_user__profile__name + ' - ' + date.toLocaleString() + '</span>';
             var dmWrapper = '<div class="dmWrapper">' +
                                 '<div class="inlineContainer own">' +
@@ -148,7 +150,45 @@ $( document ).ready(function() {
                             '</div>';
         }
         
-
         $('#dmChats').append(dmWrapper);
     };
+
+    function search() {
+        // Declare variables
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById('search_input');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("all_students_list");
+        li = ul.getElementsByTagName('li');
+      
+        // Loop through all list items, and hide those who don't match the search query
+        for (i = 0; i < li.length; i++) {
+          a = li[i].getElementsByTagName("a")[0];
+          if (a) {
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              li[i].style.display = "";
+            } else {
+              li[i].style.display = "none";
+            }
+          }
+        }
+    }
+
+    var entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+      };
+      
+    function escapeHtml (string) {
+        return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+          return entityMap[s];
+        });
+    }
 });

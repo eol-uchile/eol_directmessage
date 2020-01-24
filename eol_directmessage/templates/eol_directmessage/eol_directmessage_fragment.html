@@ -72,7 +72,7 @@
             <div class="col-md-12">
                 <h2 class="dm-header">Iniciar una nueva conversación</h2>
 
-                <input type="text" id="search_input" onkeyup="search()" placeholder="Buscar por nombre">
+                <input type="text" id="search_input" placeholder="Buscar por nombre">
                 <ul id="all_students_list">
                     %for student in students:
                     <li>
@@ -93,6 +93,5 @@
         var URL_NEW_MESSAGE = "${url_new_message}";
         var COURSE_ID = "${course.id}";
     </script>
-    <script type="text/javascript" src="${static.url('eol_directmessage/js/search.js')}"></script>
     <script type="text/javascript" src="${static.url('eol_directmessage/js/main.js')}"></script>
 </main>
