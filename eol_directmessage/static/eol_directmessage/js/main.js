@@ -55,11 +55,12 @@ $( document ).ready(function() {
             },
             success:  function (response) {
                 user_data = response;
-                $('#list').html('');
+                console.log(user_data)
+                $('#list .recent-messages-list').html('');
                 for(chat of user_data) {
                     generate_list_html(chat);
                 }
-                $('.open_chat').click(function() {
+                $('.user-list').click(function() {
                     other_username = $(this).attr('id');
                     get_messages(other_username);
                 });
@@ -111,17 +112,29 @@ $( document ).ready(function() {
 
     function generate_list_html(chat) {
         username = USER_USERNAME;
+        //#list .recent-messages-list
         if (username == chat.sender_user__profile__name) {
             other_username = chat.receiver_user__username;
-            $('#list').append("<span class='open_chat' id='" + other_username + "'> - " + chat.receiver_user__profile__name + "</span>");
+            profile_name = chat.receiver_user__profile__name;
         } else {
             other_username = chat.sender_user__username; 
-            $('#list').append("<span class='open_chat' id='" + other_username + "'> - " + chat.sender_user__profile__name + "</span>");
+            profile_name = chat.sender_user__profile__name;
         }
         if (chat.min_viewed || username == chat.sender_user__profile__name)
-            $('#list').append(" - No tienes nuevos mensajes <br/>");
+            status = "No tienes nuevos mensajes <br/>";
         else
-            $('#list').append(" - <strong>Tienes nuevos mensajes</strong> <br/>");
+            status = "Tienes nuevos mensajes";
+
+        $('#list .recent-messages-list').append(
+            '<li class="user-list" id="' + other_username + '">' + 
+                '<span class="icon-list"><i class="fa fa-chevron-right"></i></span>'+
+                '<div class="info-list">'+
+                    '<span class="name-list">' + profile_name + '</span>'+
+                    '<br/>'+
+                    '<span class="status-list">' + status + '</span>'+
+                '</div>'+
+              '</li>'
+        );
         
         // delete user in the list of all students
         $('.list-' + other_username).remove();

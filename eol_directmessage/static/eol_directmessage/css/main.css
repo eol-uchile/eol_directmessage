@@ -56,6 +56,73 @@
 /*
     Chat
 */
+
+#list {
+    overflow-y: scroll;
+    height:335px;
+    max-height:335px;
+}
+
+
+ul.recent-messages-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.2), 0 4px 20px 0 rgba(0,0,0,0.19);
+}
+
+ul.recent-messages-list li.user-list {
+    padding: 8px 16px;
+    border-bottom: 1px solid #ddd;
+    width: 100%;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+ul.recent-messages-list li.user-list:hover {
+    font-weight: bold;
+}
+
+ul.recent-messages-list li.user-list:before,
+ul.recent-messages-list li.user-list:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+ul.recent-messages-list li.user-list span.icon-list {
+    padding: 8px 16px;
+    width: auto;
+    border: none;
+    display: block;
+    outline: 0;
+    
+    white-space: normal;
+    font-size: 18px!important;
+    float: right!important;
+    color: #000!important;
+    background-color: #fff!important;
+}
+
+ul.recent-messages-list li.user-list div.info-list {
+    padding: 8px 16px;
+    float: left;
+    width: auto;
+    border: none;
+    display: block;
+    outline: 0;
+}
+
+ul.recent-messages-list li.user-list div.info-list span.name-list {
+    font-size: 18px!important;
+}
+
+ul.recent-messages-list li.user-list div.info-list span.status-list {
+    font-size: 12px!important;
+}
+
+
+
 .dmWrapper {
     padding: 10px 10px;
     display: flex;
@@ -110,6 +177,7 @@ span.other{
 #dmChats{
     overflow-y: scroll;
     height:300px;
+    max-height:300px;
 }
 
 #dmChats div {

@@ -39,16 +39,19 @@
         margin: -11px 20px 10px;
     }
 
-
 </style>
 
 <main id="main" aria-label="Content" tabindex="-1">
     <div class="container">
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-12">
                 <h2 class="dm-header">Conversaciones Recientes</h2>
+            </div>
+            <div class="col-md-5">
                 <img id="list-loading" class="loading" src="${static.url('eol_directmessage/img/loader.svg')}" alt="Cargando ...">
-                <div id="list"></div>
+                <div id="list">
+                    <ul class="recent-messages-list"></ul>
+                </div>
             </div>
             <div class="col-md-7">
                 <img id="messages-loading" class="loading" src="${static.url('eol_directmessage/img/loader.svg')}" alt="Cargando ...">
