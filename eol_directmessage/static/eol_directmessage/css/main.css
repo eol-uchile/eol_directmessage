@@ -1,3 +1,34 @@
+/* Scrollbar */
+/* width */
+.chat-row ::-webkit-scrollbar {
+    width: 7px;
+}
+
+/* Track */
+.chat-row ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+
+/* Handle */
+.chat-row ::-webkit-scrollbar-thumb {
+    background: #888888ab;
+}
+
+/* Handle on hover */
+.chat-row ::-webkit-scrollbar-thumb:hover {
+    background: #888888d9; 
+}
+
+
+.chat-row .chat-col {
+    border: 1px solid #c8c8c8 !important;    
+    height:335px;
+    max-height:335px;
+}
+.chat-row {
+    box-shadow: 0 1px 1px 0 rgba(0,0,0,.06), 0 2px 5px 0 rgba(0,0,0,.2);
+}
+
 
 #search_input {
     background-repeat: no-repeat; /* Do not repeat the icon image */
@@ -68,7 +99,6 @@ ul.recent-messages-list {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.2), 0 4px 20px 0 rgba(0,0,0,0.19);
 }
 
 ul.recent-messages-list li.user-list {
@@ -101,7 +131,7 @@ ul.recent-messages-list li.user-list span.icon-list {
     font-size: 18px!important;
     float: right!important;
     color: #000!important;
-    background-color: #fff!important;
+    background-color: transparent!important;
 }
 
 ul.recent-messages-list li.user-list div.info-list {

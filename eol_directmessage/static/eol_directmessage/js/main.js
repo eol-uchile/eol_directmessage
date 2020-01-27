@@ -96,6 +96,7 @@ $( document ).ready(function() {
                     generate_messages_html(message);
                 }
                 $("#dmChats").show();
+                $("#dmChats").scrollTop($("#dmChats").prop("scrollHeight"));
                 $(".send-message").show();
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -121,9 +122,9 @@ $( document ).ready(function() {
             profile_name = chat.sender_user__profile__name;
         }
         if (chat.min_viewed || username == chat.sender_user__profile__name)
-            status = "No tienes nuevos mensajes <br/>";
+            status = "";
         else
-            status = "Tienes nuevos mensajes";
+            status = "<strong>Tienes nuevos mensajes !</strong>";
 
         $('#list .recent-messages-list').append(
             '<li class="user-list" id="' + other_username + '">' + 
