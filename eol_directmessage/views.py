@@ -20,6 +20,15 @@ from django.core import serializers
 from django.db.models import Q, Min, Max
 from models import EolMessage
 
+
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+from django.conf import settings
+from celery import current_task, task
+from django.core.mail import send_mail
+from django.utils.html import strip_tags
+import datetime
+from django.utils import timezone
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -35,6 +44,9 @@ class EolDirectMessageFragmentView(EdxFragmentView):
         return fragment
 
 def _get_context(request, course_id):
+    """
+        Get all attributes required
+    """
     course_key = CourseKey.from_string(course_id)
     course = get_course_with_access(request.user, "load", course_key)
     enrolled_students = get_all_students(request.user.id, course_key)
@@ -56,6 +68,9 @@ def _get_context(request, course_id):
 
 
 def get_all_students(user_id, course_key):
+    """
+        Get all student enrolled in the course (except user logged)
+    """
     return User.objects.filter(
             courseenrollment__course_id=course_key,
             courseenrollment__is_active=1
@@ -95,6 +110,7 @@ def get_student_chats(request, course_id):
             new_user_chats.append(u)
 
     data = json.dumps(new_user_chats, default=json_util.default)
+    #create_mail()
     return HttpResponse(data)
 
 def get_messages(request, username, course_id):
@@ -130,7 +146,7 @@ def get_messages(request, username, course_id):
 
 def new_message(request):
     """
-       
+       Add new message on chat between two users
     """
     # check method and params
     if request.method != "POST":
@@ -151,3 +167,54 @@ def new_message(request):
         text=message.strip()
     )
     return HttpResponse(status=201)
+
+def create_mail():
+    """
+        Filter all users with unviewed messages in the last 10 minutes and generate a reminder mail
+    """
+    platform_name = configuration_helpers.get_value('PLATFORM_NAME', settings.PLATFORM_NAME)
+    today = timezone.now()
+    users = EolMessage.objects.filter(
+        viewed=False,
+        created_at__range=(today-datetime.timedelta(seconds=60 * 10), today),
+        deleted_at__isnull=True
+    ).values(
+        'receiver_user',
+        'course_id'
+    ).annotate(
+        min_viewed = Min('viewed'),
+        max_date = Max('created_at')
+    )
+    for u in users:
+        course_key = CourseKey.from_string(u["course_id"])
+        user = User.objects.get(id=u["receiver_user"])
+        course = get_course_with_access(user, "load", course_key)
+
+        subject = 'Tienes nuevos mensajes en el curso "%s"' % (course.display_name_with_default)
+        context = {
+            "user_full_name": user.profile.name,
+            "course_name": course.display_name_with_default,
+            "platform_name": platform_name,
+        }
+        html_message = render_to_string('emails/unread_direct_messages_reminder.txt', context)
+        send_reminder_mail.delay(subject, html_message, user.email)
+
+
+@task(default_retry_delay=settings.BULK_EMAIL_DEFAULT_RETRY_DELAY, max_retries=settings.BULK_EMAIL_MAX_RETRIES)
+def send_reminder_mail(subject, html_message, user_email):
+    """
+        Send mail to specific user
+    """
+    plain_message = strip_tags(html_message)
+    from_email = configuration_helpers.get_value(
+        'email_from_address',
+        settings.BULK_EMAIL_DEFAULT_FROM_EMAIL
+    )
+    send_mail(
+        subject, 
+        plain_message,
+        from_email, 
+        [user_email], 
+        fail_silently=False,
+        html_message=html_message)
+

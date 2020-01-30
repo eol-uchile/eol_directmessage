@@ -1,0 +1,7 @@
+## mako
+<html>
+<p>${("Hola {user_full_name},").format(user_full_name=user_full_name)}</p>
+<p>${("Tienes mensajes nuevos sin leer en el curso: {course_name}.").format(course_name=course_name)}</p>
+<p>${("Gracias,")}</p>
+<p>${("Equipo {platform_name}. No respondas a este correo.").format(platform_name=platform_name)}</p>
+</html>
