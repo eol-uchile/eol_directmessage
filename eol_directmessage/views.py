@@ -18,7 +18,7 @@ import json
 from django.core import serializers
 
 from django.db.models import Q, Min, Max
-from models import EolMessage
+from models import EolMessage, EolMessageConfiguration
 
 
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
@@ -110,7 +110,7 @@ def get_student_chats(request, course_id):
             new_user_chats.append(u)
 
     data = json.dumps(new_user_chats, default=json_util.default)
-    #create_mail()
+    create_mail()
     return HttpResponse(data)
 
 def get_messages(request, username, course_id):
@@ -170,13 +170,16 @@ def new_message(request):
 
 def create_mail():
     """
-        Filter all users with unviewed messages in the last 10 minutes and generate a reminder mail
+        Filter all users with unviewed messages after the last mail and generate a reminder mail
     """
     platform_name = configuration_helpers.get_value('PLATFORM_NAME', settings.PLATFORM_NAME)
     today = timezone.now()
+    
+    # Get or create EolMessageConfiguration with last mail date
+    configuration, created = EolMessageConfiguration.objects.get_or_create()
     users = EolMessage.objects.filter(
         viewed=False,
-        created_at__range=(today-datetime.timedelta(seconds=60 * 10), today),
+        created_at__range=(configuration.last_mail, today),
         deleted_at__isnull=True
     ).values(
         'receiver_user',
@@ -185,6 +188,11 @@ def create_mail():
         min_viewed = Min('viewed'),
         max_date = Max('created_at')
     )
+    # Update last mail date
+    configuration.last_mail = today
+    configuration.save()
+
+    # Send mail for each user
     for u in users:
         course_key = CourseKey.from_string(u["course_id"])
         user = User.objects.get(id=u["receiver_user"])
