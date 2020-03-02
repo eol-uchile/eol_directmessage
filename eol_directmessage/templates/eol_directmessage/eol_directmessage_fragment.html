@@ -44,10 +44,18 @@
 
 <main id="main" aria-label="Content" tabindex="-1">
     <div class="container">
-        <div class="row chat-row">
-            <div class="col-md-12">
-                <h2 class="dm-header">Conversaciones Recientes</h2>
+        <div class="row chat-header mt-4 mb-2">
+            <div class="col-5">
+                <p class="dm-header">Conversaciones Recientes</p>
             </div>
+            <div class="col-7 ml-auto">
+                <div class="btn-group float-right" role="group" aria-label="Basic example">
+                    <button type="button" class="add"><i class="fa fa-plus-circle"></i> Nueva Conversación</button>
+                    <button type="button" class="add"><i class="fa fa-refresh"></i> Actualizar</button>
+                </div>
+            </div>
+        </div>
+        <div class="row chat-row">
             <div class="col-md-5 chat-col">
                 <img id="list-loading" class="loading" src="${static.url('eol_directmessage/img/loader.svg')}" alt="Cargando ...">
                 <div id="list">
@@ -73,8 +81,8 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
-                <h2 class="dm-header">Iniciar una nueva conversación</h2>
+            <div class="col-md-12 mt-4">
+                <p class="dm-header my-2">Iniciar una nueva conversación</p>
 
                 <input type="text" id="search_input" placeholder="Buscar por nombre">
                 <ul id="all_students_list">

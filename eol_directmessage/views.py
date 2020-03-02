@@ -20,15 +20,6 @@ from django.core import serializers
 from django.db.models import Q, Min, Max
 from models import EolMessage, EolMessageConfiguration
 
-
-from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
-from django.conf import settings
-from celery import current_task, task
-from django.core.mail import send_mail
-from django.utils.html import strip_tags
-import datetime
-from django.utils import timezone
-
 import logging
 logger = logging.getLogger(__name__)
 

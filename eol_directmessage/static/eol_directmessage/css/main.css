@@ -76,7 +76,8 @@
 }
 
 .dm-header {
-    margin-top: 10px;
+    font-size:x-large;
+    font-weight: bold;
 }
 
 #all_students_list {

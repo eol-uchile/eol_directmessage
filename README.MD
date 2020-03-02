@@ -10,3 +10,10 @@ To enable email tasks edit *production.py* in *lms settings* and add:
 ## Send Reminder Mail (Manual)
 
     > docker-compose exec lms python manage.py lms --settings=tutor.production reminder_mail
+
+
+## TODO
+
+- [ ] Crontab
+- [ ] Reload Button
+- [ ] Tests
