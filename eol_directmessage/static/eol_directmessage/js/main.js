@@ -1,8 +1,20 @@
 $( document ).ready(function() {
 
     init(); // load data
+    /*
+    * Hide containers and get user chats
+    */
 
-    $(".reload-chats").click(function(){
+    function init() {
+        $('.new-chat').hide();
+        $("#dmChats").hide();
+        $(".send-message").hide();
+        get_chats();
+    }
+    /*
+    * Reload user chats
+    */
+    $(".reload-chats").click(function() {
         $('.student-list').show(); // Show all students
         get_chats();
         let other_username = $('#username-message').val();
@@ -10,14 +22,16 @@ $( document ).ready(function() {
     });
 
     /*
-    * Hide containers and get user chats
+    * Show new chat div
     */
-
-    function init() {
-        $("#dmChats").hide();
-        $(".send-message").hide();
-        get_chats();
-    }
+    $(".new-chat-btn").click(function() {
+        $(this).hide();
+        $('.new-chat').show();
+        // Scroll div
+        $('html,body').animate({
+            scrollTop: $(".new-chat").offset().top
+        }, 'slow');
+    });
 
     /*
     * Add student to the chat list
@@ -125,7 +139,11 @@ $( document ).ready(function() {
                 $('#list .recent-messages-list').html('');
 
                 // Show message if user doesnt' have chats already
-                if (user_data.length == 0)  $('#list .recent-messages-list').html('No tienes conversaciones recientes.');
+                if (user_data.length == 0){
+                    $('#list .recent-messages-list').html('No tienes conversaciones recientes.');
+                    $('.new-chat').show();
+                    $('.new-chat-btn').hide();
+                }
 
                 // Create list for each user
                 for(chat of user_data) {
