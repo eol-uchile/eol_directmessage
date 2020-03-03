@@ -1,7 +1,23 @@
 $( document ).ready(function() {
-    $("#dmChats").hide();
-    $(".send-message").hide();
-    get_chats();
+
+    init(); // load data
+
+    $(".reload-chats").click(function(){
+        $('.student-list').show(); // Show all students
+        get_chats();
+        let other_username = $('#username-message').val();
+        get_messages(other_username);
+    });
+
+    /*
+    * Hide containers and get user chats
+    */
+
+    function init() {
+        $("#dmChats").hide();
+        $(".send-message").hide();
+        get_chats();
+    }
 
     /*
     * Add student to the chat list
@@ -28,7 +44,7 @@ $( document ).ready(function() {
         generate_list_html(chat);
 
         // Remove from all students list
-        $(this).remove(); 
+        $('.student-list.list-' + other_username).hide();
 
         // Update click handler
         $('.user-list').click(function() {
@@ -38,6 +54,11 @@ $( document ).ready(function() {
 
         // Open new empty chat
         get_messages(other_username); 
+
+        // Scroll div
+        $('html,body').animate({
+            scrollTop: $("#messages-loading").offset().top
+        }, 'slow');
     });
     
     /*
@@ -142,11 +163,8 @@ $( document ).ready(function() {
         $.ajax({
             url:   url,
             beforeSend: function () {
-                // Show loading and scroll to the chat
+                // Show loading
                 $('#messages-loading').show();
-                $('html,body').animate({
-                    scrollTop: $("#messages-loading").offset().top
-                }, 'slow');
             },
             success:  function (response) {
                 data = response;
@@ -211,7 +229,7 @@ $( document ).ready(function() {
         );
         
         // delete user in the list of all students
-        $('.list-' + other_username).remove();
+        $('.student-list.list-' + other_username).hide();
     }
 
     /*

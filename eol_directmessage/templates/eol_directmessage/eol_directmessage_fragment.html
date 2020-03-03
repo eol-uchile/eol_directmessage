@@ -51,7 +51,7 @@
             <div class="col-7 ml-auto">
                 <div class="btn-group float-right" role="group" aria-label="Basic example">
                     <button type="button" class="add"><i class="fa fa-plus-circle"></i> Nueva Conversación</button>
-                    <button type="button" class="add"><i class="fa fa-refresh"></i> Actualizar</button>
+                    <button type="button" class="reload-chats"><i class="fa fa-refresh"></i> Actualizar</button>
                 </div>
             </div>
         </div>
@@ -87,7 +87,7 @@
                 <input type="text" id="search_input" placeholder="Buscar por nombre">
                 <ul id="all_students_list">
                     %for student in students:
-                    <li>
+                    <li class="student-list list-${student.username}">
                         <a href="#" class="list-${student.username}">${student.profile.name}</a>
                     </li>
                     %endfor
