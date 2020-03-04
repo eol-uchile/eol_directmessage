@@ -22,6 +22,51 @@ $( document ).ready(function() {
     });
 
     /*
+    * Set notification configuration
+    */
+   $(".notification-config button").click(function() {
+        var notification_btn = $(this);
+        var url = URL_UPDATE_CONFIGURATION;
+        $.ajax({
+            url:   url,
+            type:  'post',
+            beforeSend: function () {
+                /*
+                * Set button disabled
+                */
+               notification_btn.prop("disabled", true);
+            },
+            success:  function (response) {
+                /*
+                * Change button class/html
+                */
+               if(notification_btn.hasClass("is_muted")) {
+                    notification_btn.addClass("is_not_muted").removeClass("is_muted");
+                    notification_btn.addClass("btn-outline-success").removeClass("btn-outline-danger");
+                    notification_btn.html('<i class="fa fa-bell"></i> Notificaciones Activadas');
+               } else {
+                    notification_btn.addClass("is_muted").removeClass("is_not_muted");
+                    notification_btn.addClass("btn-outline-danger").removeClass("btn-outline-success");
+                    notification_btn.html('<i class="fa fa-bell-slash"></i> Notificaciones Desactivadas');
+               }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error, intente nuevamente más tarde");
+                console.log(xhr);
+                console.log(ajaxOptions);
+                console.log(thrownError);
+            },
+            complete: function() {
+                /*
+                * Set button enabled
+                */
+                notification_btn.prop("disabled", false);
+            }
+        });
+
+   });
+
+    /*
     * Show new chat div
     */
     $(".new-chat-btn").click(function() {

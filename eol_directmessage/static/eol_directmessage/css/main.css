@@ -236,3 +236,22 @@ span.other{
     height: 35px;
     padding: 4px 20px !important;
 }
+
+/*
+* Notification button
+*/
+
+.is_muted, .is_not_muted {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+.is_muted:hover, .is_muted:active {
+    background-color: #dc3545!important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+.is_not_muted:hover, .is_not_muted:active {
+    background-color: #28a745 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}

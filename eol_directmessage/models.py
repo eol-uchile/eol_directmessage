@@ -19,6 +19,9 @@ class EolMessage(models.Model):
         return '[%s](%s) %s -> %s' % (self.created_at, self.course_id, self.sender_user.username, self.receiver_user.username)
 
 class EolMessageConfiguration(models.Model):
+    """
+        General configuration
+    """
     last_mail = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -31,3 +34,22 @@ class EolMessageConfiguration(models.Model):
 
     def __str__(self):
         return '%s' % (self.last_mail)
+
+class EolMessageUserConfiguration(models.Model):
+    """
+        User configuration
+    """
+    class Meta:
+        index_together = [
+            ["user", "course_id"],
+        ]
+        unique_together = [
+            ["user", "course_id"],
+        ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
+    course_id = models.CharField(max_length=50)
+    is_muted = models.BooleanField(default=True) # If is_muted=True the user will not receive reminder mails
+
+    def __str__(self):
+        return '[%s](%s) %s' % (self.is_muted, self.course_id, self.user.username)

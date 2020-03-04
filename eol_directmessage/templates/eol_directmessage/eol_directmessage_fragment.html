@@ -44,14 +44,21 @@
 
 <main id="main" aria-label="Content" tabindex="-1">
     <div class="container">
-        <div class="row chat-header mt-4 mb-2">
+        <div class="row chat-header mt-4">
             <div class="col-5">
                 <p class="dm-header">Conversaciones Recientes</p>
             </div>
             <div class="col-7 ml-auto">
-                <div class="btn-group float-right" role="group" aria-label="Basic example">
-                    <button type="button" class="new-chat-btn"><i class="fa fa-plus-circle"></i> Nueva Conversación</button>
-                    <button type="button" class="reload-chats"><i class="fa fa-refresh"></i> Actualizar</button>
+                <div class="notification-config btn-group float-left" role="group">
+                    % if user_config['is_muted']:
+                        <button type="button" class="is_muted btn-sm btn-outline-danger my-1"><i class="fa fa-bell-slash"></i> Notificaciones Desactivadas</button>
+                    % else:
+                        <button type="button" class="is_not_muted btn-sm btn-outline-success my-1"><i class="fa fa-bell"></i> Notificaciones Activadas</button>
+                    % endif
+                </div>
+                <div class="btn-group float-right" role="group">
+                    <button type="button" class="new-chat-btn my-1"><i class="fa fa-plus-circle"></i> Nueva Conversación</button>
+                    <button type="button" class="reload-chats my-1"><i class="fa fa-refresh"></i> Actualizar</button>
                 </div>
             </div>
         </div>
@@ -104,6 +111,7 @@
         var USER_USERNAME = "${user.username}";
         var URL_NEW_MESSAGE = "${url_new_message}";
         var COURSE_ID = "${course.id}";
+        var URL_UPDATE_CONFIGURATION = "${url_update_configuration}";
     </script>
     <script type="text/javascript" src="${static.url('eol_directmessage/js/main.js')}"></script>
 </main>

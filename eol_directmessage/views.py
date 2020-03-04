@@ -18,7 +18,7 @@ import json
 from django.core import serializers
 
 from django.db.models import Q, Min, Max
-from models import EolMessage, EolMessageConfiguration
+from models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration
 
 import logging
 logger = logging.getLogger(__name__)
@@ -41,11 +41,13 @@ def _get_context(request, course_id):
     course_key = CourseKey.from_string(course_id)
     course = get_course_with_access(request.user, "load", course_key)
     enrolled_students = get_all_students(request.user.id, course_key)
+    user_configuration = get_user_configuration(request.user, course_key)
     return {
         "course" : course,
         "students" : enrolled_students,
         "user" : request.user,
         "username" : request.user.profile.name,
+        "user_config" : user_configuration,
         "url_get_student_chats" : reverse('get_student_chats', kwargs={
             'course_id' : course_id
         }),
@@ -55,6 +57,9 @@ def _get_context(request, course_id):
             'course_id' : course_id
         }),
         "url_new_message" : reverse('new_message'),
+        "url_update_configuration" : reverse('update_user_configuration', kwargs={
+            'course_id' : course_id
+        }),
     }
 
 
@@ -66,6 +71,22 @@ def get_all_students(user_id, course_key):
             courseenrollment__course_id=course_key,
             courseenrollment__is_active=1
     ).exclude(id=user_id)
+
+def get_user_configuration(user, course_key):
+    """
+        Get user configuration
+        For the moment only have is_muted attribute
+    """
+    try:
+        user_config = EolMessageUserConfiguration.objects.get(user_id=user.id, course_id=course_key)
+        return {
+            "is_muted" : user_config.is_muted,
+        }
+    except EolMessageUserConfiguration.DoesNotExist:
+        return {
+            "is_muted" : False,
+        }
+
 
 def get_student_chats(request, course_id):
     """
@@ -156,4 +177,26 @@ def new_message(request):
         receiver_user = other_user,
         text=message.strip()
     )
+    return HttpResponse(status=201)
+
+def update_user_configuration(request, course_id):
+    """
+       Update user notifications configuration
+    """
+    # check method
+    if request.method != "POST":
+        return HttpResponse(status=400)
+
+    user = request.user
+    # change is_muted attribute. Create if doesn't exist
+    try:
+        user_config = EolMessageUserConfiguration.objects.get(user_id=user.id, course_id=course_id)
+        user_config.is_muted = not user_config.is_muted
+        user_config.save()
+        return HttpResponse(status=200)
+    except EolMessageUserConfiguration.DoesNotExist:
+        user_config = EolMessageUserConfiguration.objects.create(
+            user_id=user.id,
+            course_id=course_id
+        )
     return HttpResponse(status=201)
