@@ -244,6 +244,9 @@ $( document ).ready(function() {
                 // Scroll to bottom (end of messages)
                 $("#dmChats").scrollTop($("#dmChats").prop("scrollHeight"));
 
+                // Delete status (new message text on other usernames lists)
+                $("#status-" + other_username).remove();
+
                 // Show submit input/button
                 $(".send-message").show();
             },
@@ -277,7 +280,7 @@ $( document ).ready(function() {
         if (chat.min_viewed || username == chat.sender_user__username)
             status = "";
         else
-            status = "<strong>Tienes nuevos mensajes !</strong>";
+            status = "<strong id='status-" + other_username + "'>Tienes nuevos mensajes !</strong>";
 
         // Append <li> element with other user info
         $('#list .recent-messages-list').append(
