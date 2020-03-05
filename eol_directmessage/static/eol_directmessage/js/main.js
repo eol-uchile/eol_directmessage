@@ -18,7 +18,9 @@ $( document ).ready(function() {
         $('.student-list').show(); // Show all students
         get_chats();
         let other_username = $('#username-message').val();
-        get_messages(other_username);
+        if (other_username) {
+            get_messages(other_username);
+        }
     });
 
     /*
