@@ -19,6 +19,7 @@ from django.core import serializers
 
 from django.db.models import Q, Min, Max
 from models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration
+from student.models import CourseAccessRole
 
 import logging
 logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ def _get_context(request, course_id):
     """
     course_key = CourseKey.from_string(course_id)
     course = get_course_with_access(request.user, "load", course_key)
-    enrolled_students = get_all_students(request.user.id, course_key)
+    enrolled_students = get_all_students(request.user.id, course_id)
     user_configuration = get_user_configuration(request.user, course_key)
     return {
         "course" : course,
@@ -63,14 +64,19 @@ def _get_context(request, course_id):
     }
 
 
-def get_all_students(user_id, course_key):
+def get_all_students(user_id, course_id):
     """
         Get all student enrolled in the course (except user logged)
     """
-    return User.objects.filter(
+    course_key = CourseKey.from_string(course_id)
+    roles = get_access_roles(course_id)
+    users = User.objects.filter(
             courseenrollment__course_id=course_key,
             courseenrollment__is_active=1
     ).exclude(id=user_id)
+    for u in users:
+        u.has_role = u.username in roles
+    return users
 
 def get_user_configuration(user, course_key):
     """
@@ -115,14 +121,30 @@ def get_student_chats(request, course_id):
     # "delete" duplicated
     users_already = [] # list of other students usernames
     new_user_chats = []
+    roles = get_access_roles(course_id)
     for u in user_chats:
         other_user = u["sender_user__username"] if u["sender_user__username"] != request.user.username else u["receiver_user__username"] # get student username
         if other_user not in users_already:
             users_already.append(other_user)
+            u["has_role"] = other_user in roles
             new_user_chats.append(u)
 
     data = json.dumps(new_user_chats, default=json_util.default)
     return HttpResponse(data)
+
+def get_access_roles(course_id):
+    """
+        Return users lists with access roles (staff and instructor)
+    """
+    course_key = CourseKey.from_string(course_id)
+    roles = CourseAccessRole.objects.filter(
+        role__in=('staff', 'instructor'),
+        course_id=course_key
+    ).values_list(
+        'user__username',
+        flat=True,
+    )
+    return list(roles)
 
 def get_messages(request, username, course_id):
     """

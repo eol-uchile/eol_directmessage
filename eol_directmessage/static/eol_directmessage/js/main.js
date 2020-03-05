@@ -86,14 +86,16 @@ $( document ).ready(function() {
     */
     $("#all_students_list li a").click(function(e) {
         // Get chat attributes
-        let a_class = $(this).attr('class');
-        let other_username = a_class.replace('list-','');
+        let a_id = $(this).attr('id');
+        let has_role = $(this).attr('class') == 'True' ? true : false; // class is a string (not boolean)
+        let other_username = a_id.replace('list-','');
         let other_name = $(this).text();
         let chat = {
             'sender_user__username' : USER_USERNAME,
             'receiver_user__username' : other_username,
             'receiver_user__profile__name' : other_name,
-            'min_viewed' : true
+            'min_viewed' : true,
+            'has_role' : has_role
         };
         
         // Remove 'no chats' message when student doesn't have chats
@@ -251,6 +253,10 @@ $( document ).ready(function() {
 
                 // Show submit input/button
                 $(".send-message").show();
+
+                // Set active 'other_user' in the list
+                $(".user-list").removeClass("active"); // Remove another active li
+                $("#"+other_username).addClass("active");
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert("Error, intente nuevamente más tarde");
@@ -284,9 +290,13 @@ $( document ).ready(function() {
         else
             status = "<strong id='status-" + other_username + "'>Tienes nuevos mensajes !</strong>";
 
+        role = "";
+        if (chat.has_role) role = '<span class="icon-role"><i class="fa fa-graduation-cap"></i></span>';
+
         // Append <li> element with other user info
         $('#list .recent-messages-list').append(
-            '<li class="user-list" id="' + other_username + '">' + 
+            '<li class="user-list" id="' + other_username + '">' +
+                role + 
                 '<span class="icon-list"><i class="fa fa-chevron-right"></i></span>'+
                 '<div class="info-list">'+
                     '<span class="name-list">' + profile_name + '</span>'+

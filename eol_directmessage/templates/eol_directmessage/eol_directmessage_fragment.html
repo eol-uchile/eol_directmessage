@@ -95,7 +95,7 @@
                 <ul id="all_students_list">
                     %for student in students:
                     <li class="student-list list-${student.username}">
-                        <a href="#" class="list-${student.username}">${student.profile.name}</a>
+                        <a href="#" id="list-${student.username}" class="${student.has_role}">${student.profile.name}</a>
                     </li>
                     %endfor
                 </ul>

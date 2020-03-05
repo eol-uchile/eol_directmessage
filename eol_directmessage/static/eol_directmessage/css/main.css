@@ -154,6 +154,21 @@ ul.recent-messages-list li.user-list div.info-list span.status-list {
 
 
 
+.user-list.active {
+    background-color: #e2e2e2;
+}
+
+.icon-role {
+    float: left;
+    position: absolute;
+    margin: 8px -8px;
+}
+
+.user-list {
+    margin-bottom: 0px !important;;
+}
+
+
 .dmWrapper {
     padding: 10px 10px;
     display: flex;
