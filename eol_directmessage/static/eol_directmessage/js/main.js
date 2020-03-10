@@ -12,11 +12,20 @@ $( document ).ready(function() {
         $(".send-message").hide();
         get_chats();
     }
+
+    function check_all_student_length() {
+        if ($('.student-list a:visible').length == 0) {
+            $('#all_students_list_status').html("<strong>No hay usuarios para comenzar una nueva conversación</strong>");
+        } else {
+            $('#all_students_list_status').html("");
+        }
+    }
     /*
     * Reload user chats
     */
     $(".reload-chats").click(function() {
         $('.student-list').show(); // Show all students
+        check_all_student_length();
         get_chats();
         let other_username = $('#username-message').val();
         if (other_username) {
@@ -75,6 +84,7 @@ $( document ).ready(function() {
     $(".new-chat-btn").click(function() {
         $(this).hide();
         $('.new-chat').show();
+        check_all_student_length();
         // Scroll div
         $('html,body').animate({
             scrollTop: $(".new-chat").offset().top
@@ -97,6 +107,7 @@ $( document ).ready(function() {
             $('.new-chat-filter').toggleClass("btn-info btn-outline-info");
             // Hide user with chats already
         }
+        check_all_student_length();
     });
 
     /*
@@ -127,6 +138,7 @@ $( document ).ready(function() {
 
         // Remove from all students list
         $('.student-list.list-' + other_username).hide();
+        check_all_student_length();
 
         // Update click handler
         $('.user-list').click(function() {
