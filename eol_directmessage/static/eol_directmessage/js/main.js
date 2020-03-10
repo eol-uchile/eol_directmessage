@@ -123,7 +123,7 @@ $( document ).ready(function() {
         }
 
         // Add user to the chat list
-        generate_list_html(chat);
+        generate_list_html(chat, append=false);
 
         // Remove from all students list
         $('.student-list.list-' + other_username).hide();
@@ -293,8 +293,9 @@ $( document ).ready(function() {
 
     /*
     * Generate element on list from each user
+    * append or prepend html data
     */
-    function generate_list_html(chat) {
+    function generate_list_html(chat, append = true) {
         username = USER_USERNAME;
         // Define otherusername 
         if (username == chat.sender_user__username) {
@@ -314,8 +315,7 @@ $( document ).ready(function() {
         if (chat.has_role) role = '<span class="icon-role"><i class="fa fa-graduation-cap"></i></span>';
 
         // Append <li> element with other user info
-        $('#list .recent-messages-list').append(
-            '<li class="user-list" id="' + other_username + '">' +
+        data = '<li class="user-list" id="' + other_username + '">' +
                 role + 
                 '<span class="icon-list"><i class="fa fa-chevron-right"></i></span>'+
                 '<div class="info-list">'+
@@ -323,8 +323,12 @@ $( document ).ready(function() {
                     '<br/>'+
                     '<span class="status-list">' + status + '</span>'+
                 '</div>'+
-              '</li>'
-        );
+              '</li>';
+        if (append) {
+            $('#list .recent-messages-list').append(data);
+        } else {
+            $('#list .recent-messages-list').prepend(data);
+        }
         
         // delete user in the list of all students
         $('.student-list.list-' + other_username).hide();
