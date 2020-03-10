@@ -40,10 +40,22 @@
         padding-right: 0px;
     }
 
+    .row {
+        margin-left: 0px !important;
+        margin-right: 0px !important;
+    }
+
+    .list_container {
+        border: 1px solid #c8c8c8 !important;
+        overflow-y: scroll;
+        height: 250px;
+        max-height: 250px;
+    }
+
 </style>
 
 <main id="main" aria-label="Content" tabindex="-1">
-    <div class="container">
+    <div class="container mb-3">
         <div class="row chat-header mt-4">
             <div class="col-5">
                 <p class="dm-header">Conversaciones Recientes</p>
@@ -85,21 +97,37 @@
             </div>
         </div>
     </div>
-
     <div class="container new-chat">
         <div class="row">
-            <div class="col-md-12 mt-4">
-                <p class="dm-header my-2">Iniciar una nueva conversación</p>
-
+            
+            <div class="col-md-12 my-2">
+                <p class="dm-header">Iniciar una nueva conversación</p>
+                <p class="mt-2"><small>Selecciona si quieres hablar con el equipo docente o con otros estudiantes del curso</small></p>
+            </div>
+            <div class="col-md-12 mb-2">
+                <a class="new-chat-filter filter-staff btn btn-info" style="line-height: 1" href="javascript:void(0);">
+                    <span class="icon fa fa-graduation-cap" aria-hidden="true"></span>
+                    Equipo Docente
+                </a>
+                <a class="new-chat-filter filter-no-staff btn btn-outline-info" style="line-height: 1" href="javascript:void(0);">
+                    Otros Estudiantes
+                </a>
+            </div>
+            <div class="col-md-12 mt-2">
                 <input type="text" id="search_input" placeholder="Buscar por nombre">
-                <ul id="all_students_list">
+                <ul class="list_container" id="all_students_list">
                     %for student in students:
+                        <%
+                            # display only student will role (staff)
+                            display = "" if student.has_role else "none"
+                        %>
                     <li class="student-list list-${student.username}">
-                        <a href="#" id="list-${student.username}" class="${student.has_role}">${student.profile.name}</a>
+                        <a href="#" id="list-${student.username}" class="${student.has_role}" style="display: ${display}">${student.profile.name}</a>
                     </li>
                     %endfor
                 </ul>
             </div>
+            
         </div>
     </div>
 

@@ -76,8 +76,10 @@
 }
 
 .dm-header {
-    font-size:x-large;
+    font-size: x-large;
     font-weight: bold;
+    line-height: 30px;
+    overflow-wrap: break-word;
 }
 
 #all_students_list {

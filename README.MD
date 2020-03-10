@@ -15,5 +15,5 @@ To enable email tasks edit *production.py* in *lms settings* and add:
 ## TODO
 
 - [ ] Crontab
-- [ ] Reload Button
+- [x] Reload Button
 - [ ] Tests

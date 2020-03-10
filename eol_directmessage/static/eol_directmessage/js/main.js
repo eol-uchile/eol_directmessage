@@ -1,4 +1,5 @@
 $( document ).ready(function() {
+    students_with_chat = [];
 
     init(); // load data
     /*
@@ -78,6 +79,24 @@ $( document ).ready(function() {
         $('html,body').animate({
             scrollTop: $(".new-chat").offset().top
         }, 'slow');
+    });
+
+    /*
+    * new-chat filter
+    */
+
+    $('.new-chat-filter').click(function() {
+        if($(this).hasClass('filter-staff')) {
+            $('.student-list .True').show();
+            $('.student-list .False').hide();
+        } else {
+            $('.student-list .False').show();
+            $('.student-list .True').hide();
+        }
+        if(!$(this).hasClass('btn-info')) { // not active
+            $('.new-chat-filter').toggleClass("btn-info btn-outline-info");
+            // Hide user with chats already
+        }
     });
 
     /*
@@ -183,6 +202,7 @@ $( document ).ready(function() {
             },
             success:  function (response) {
                 user_data = response;
+                students_with_chat = [];
 
                 // Reset html div
                 $('#list .recent-messages-list').html('');
@@ -308,6 +328,7 @@ $( document ).ready(function() {
         
         // delete user in the list of all students
         $('.student-list.list-' + other_username).hide();
+        students_with_chat.push(other_username);
     }
 
     /*
@@ -358,7 +379,11 @@ $( document ).ready(function() {
           a = li[i].getElementsByTagName("a")[0];
           if (a) {
             txtValue = a.textContent || a.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            a_id = a.id;
+            username = a_id.replace('list-','');
+            console.log("a_id " + a_id + " - username " + username);
+            // Check if filter string exists and if the student doesnt have a chat
+            if (txtValue.toUpperCase().indexOf(filter) > -1 && !students_with_chat.includes(username)) {
               li[i].style.display = "";
             } else {
               li[i].style.display = "none";
