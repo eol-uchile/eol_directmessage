@@ -44,6 +44,13 @@
     margin: 0;
 }
 
+.list_container {
+    border: 1px solid #c8c8c8 !important;
+    overflow-y: scroll;
+    height: 250px;
+    max-height: 250px;
+}
+
 #all_students_list li {
     margin-bottom: 0px;
 }

@@ -1,42 +1,28 @@
 $( document ).ready(function() {
     students_with_chat = [];
-
     init(); // load data
-    /*
-    * Hide containers and get user chats
-    */
 
-    function init() {
-        $('.new-chat').hide();
-        $("#dmChats").hide();
-        $(".send-message").hide();
-        get_chats();
-    }
 
-    function check_all_student_length() {
-        if ($('.student-list a:visible').length == 0) {
-            $('#all_students_list_status').html("<strong>No hay usuarios para comenzar una nueva conversación</strong>");
-        } else {
-            $('#all_students_list_status').html("");
-        }
-    }
+    //---------- Click and Submit Handlers -------------
+
     /*
-    * Reload user chats
+    * Reload user chats button (click handler)
     */
     $(".reload-chats").click(function() {
         $('.student-list').show(); // Show all students
         check_all_student_length();
         get_chats();
         let other_username = $('#username-message').val();
-        if (other_username) {
+        if (other_username) { // Check for chat already open
             get_messages(other_username);
         }
     });
 
+
     /*
-    * Set notification configuration
+    * Set notification configuration (click handler)
     */
-   $(".notification-config button").click(function() {
+    $(".notification-config button").click(function() {
         var notification_btn = $(this);
         var url = URL_UPDATE_CONFIGURATION;
         $.ajax({
@@ -78,24 +64,26 @@ $( document ).ready(function() {
 
    });
 
+
     /*
-    * Show new chat div
+    * Show new chat div (click handler)
     */
     $(".new-chat-btn").click(function() {
-        $(this).hide();
-        $('.new-chat').show();
-        check_all_student_length();
-        // Scroll div
+        $(this).hide(); // hide button
+        $('.new-chat').show(); // show div with users
+        check_all_student_length(); // check if students length = 0 and show empty message 
+        // Scroll to div
         $('html,body').animate({
             scrollTop: $(".new-chat").offset().top
         }, 'slow');
     });
 
-    /*
-    * new-chat filter
-    */
 
+    /*
+    * new-chat filter (click handler)
+    */
     $('.new-chat-filter').click(function() {
+        // show/hide students by filter (True or False are has_role status)
         if($(this).hasClass('filter-staff')) {
             $('.student-list .True').show();
             $('.student-list .False').hide();
@@ -103,15 +91,16 @@ $( document ).ready(function() {
             $('.student-list .False').show();
             $('.student-list .True').hide();
         }
-        if(!$(this).hasClass('btn-info')) { // not active
+        if(!$(this).hasClass('btn-info')) { // if not active toggle class
             $('.new-chat-filter').toggleClass("btn-info btn-outline-info");
             // Hide user with chats already
         }
-        check_all_student_length();
+        check_all_student_length(); // check if students length = 0 and show empty message 
     });
 
+
     /*
-    * Add student to the chat list
+    * Add student to the chat list (click handler)
     * Open an empty chat
     */
     $("#all_students_list li a").click(function(e) {
@@ -128,7 +117,7 @@ $( document ).ready(function() {
             'has_role' : has_role
         };
         
-        // Remove 'no chats' message when student doesn't have chats
+        // Remove 'no chats' message when student doesn't have any chats
         if ($('#list .recent-messages-list').text() == 'No tienes conversaciones recientes.') {
             $('#list .recent-messages-list').html('');
         }
@@ -149,17 +138,17 @@ $( document ).ready(function() {
         // Open new empty chat
         get_messages(other_username); 
 
-        // Scroll div
+        // Scroll to div
         $('html,body').animate({
             scrollTop: $("#messages-loading").offset().top
         }, 'slow');
     });
     
+
     /*
-    * Submit a new message
+    * Submit a new message (submit handler)
     */
-    $('#new-message-form').submit(function(e) {
-                
+    $('#new-message-form').submit(function(e) {      
         var url = URL_NEW_MESSAGE;
         data = $('#new-message-form').serializeArray();
         params = {
@@ -201,6 +190,31 @@ $( document ).ready(function() {
         e.preventDefault();
     });
 
+    //---------- Functions -------------
+
+
+    /*
+    * Hide containers and get user chats
+    */
+    function init() {
+        $('.new-chat').hide();
+        $("#dmChats").hide();
+        $(".send-message").hide();
+        get_chats();
+    }
+
+    /*
+    * Check students length (new-chat list) and show empty message
+    */
+    function check_all_student_length() {
+        if ($('.student-list a:visible').length == 0) {
+            $('#all_students_list_status').html("<strong>No hay usuarios para comenzar una nueva conversación</strong>");
+        } else {
+            $('#all_students_list_status').html("");
+        }
+    }
+    
+
     /*
     * Get chat lists with info from another users
     */
@@ -235,7 +249,7 @@ $( document ).ready(function() {
                     other_username = $(this).attr('id');
                     get_messages(other_username);
                 });
-                // Set keyup function after all student list is loaded and uptaded  
+                // Set search keyup function after all student list is loaded and uptaded  
                 $('#search_input').keyup(search);
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -303,8 +317,9 @@ $( document ).ready(function() {
         });
     }
 
+
     /*
-    * Generate element on list from each user
+    * Generate element on list for each user
     * append or prepend html data
     */
     function generate_list_html(chat, append = true) {
@@ -347,6 +362,7 @@ $( document ).ready(function() {
         students_with_chat.push(other_username);
     }
 
+
     /*
     * Generate each message from chat
     */
@@ -379,6 +395,7 @@ $( document ).ready(function() {
         $('#dmChats').append(dmWrapper);
     };
 
+    
     /*
     * Search function used in all student lists
     */

@@ -9,7 +9,11 @@ from django.utils.html import strip_tags
 import logging
 logger = logging.getLogger(__name__)
 
-@task(queue='edx.lms.core.low',default_retry_delay=settings.BULK_EMAIL_DEFAULT_RETRY_DELAY, max_retries=settings.BULK_EMAIL_MAX_RETRIES)
+
+@task(
+    queue='edx.lms.core.low',
+    default_retry_delay=settings.BULK_EMAIL_DEFAULT_RETRY_DELAY,
+    max_retries=settings.BULK_EMAIL_MAX_RETRIES)
 def send_reminder_mail(subject, html_message, user_email):
     """
         Send mail to specific user
@@ -20,9 +24,9 @@ def send_reminder_mail(subject, html_message, user_email):
         settings.BULK_EMAIL_DEFAULT_FROM_EMAIL
     )
     mail = send_mail(
-        subject, 
+        subject,
         plain_message,
-        from_email, 
-        [user_email], 
+        from_email,
+        [user_email],
         fail_silently=False,
         html_message=html_message)

@@ -24,8 +24,10 @@ from student.models import CourseAccessRole
 import logging
 logger = logging.getLogger(__name__)
 
-# Default username used to create url_get_message. It will be replaced in the javascript
+# Default username used to create url_get_message. It will be replaced in
+# the javascript
 DEFAULT_USERNAME = 'DEFAULT_USERNAME_EOLDIRECTMESSAGE'
+
 
 class EolDirectMessageFragmentView(EdxFragmentView):
     def render_to_fragment(self, request, course_id, **kwargs):
@@ -34,6 +36,7 @@ class EolDirectMessageFragmentView(EdxFragmentView):
             'eol_directmessage/eol_directmessage_fragment.html', context)
         fragment = Fragment(html)
         return fragment
+
 
 def _get_context(request, course_id):
     """
@@ -44,23 +47,26 @@ def _get_context(request, course_id):
     enrolled_students = get_all_students(request.user.id, course_id)
     user_configuration = get_user_configuration(request.user, course_key)
     return {
-        "course" : course,
-        "students" : enrolled_students,
-        "user" : request.user,
-        "username" : request.user.profile.name,
-        "user_config" : user_configuration,
-        "url_get_student_chats" : reverse('get_student_chats', kwargs={
-            'course_id' : course_id
-        }),
-        "default_username" : DEFAULT_USERNAME,
-        "url_get_messages" : reverse('get_messages', kwargs={
-            'username' : DEFAULT_USERNAME,
-            'course_id' : course_id
-        }),
-        "url_new_message" : reverse('new_message'),
-        "url_update_configuration" : reverse('update_user_configuration', kwargs={
-            'course_id' : course_id
-        }),
+        "course": course,
+        "students": enrolled_students,
+        "user": request.user,
+        "username": request.user.profile.name,
+        "user_config": user_configuration,
+        "url_get_student_chats": reverse(
+            'get_student_chats',
+            kwargs={
+                'course_id': course_id}),
+        "default_username": DEFAULT_USERNAME,
+        "url_get_messages": reverse(
+            'get_messages',
+            kwargs={
+                'username': DEFAULT_USERNAME,
+                'course_id': course_id}),
+        "url_new_message": reverse('new_message'),
+        "url_update_configuration": reverse(
+            'update_user_configuration',
+            kwargs={
+                'course_id': course_id}),
     }
 
 
@@ -71,12 +77,13 @@ def get_all_students(user_id, course_id):
     course_key = CourseKey.from_string(course_id)
     roles = get_access_roles(course_id)
     users = User.objects.filter(
-            courseenrollment__course_id=course_key,
-            courseenrollment__is_active=1
+        courseenrollment__course_id=course_key,
+        courseenrollment__is_active=1
     ).exclude(id=user_id)
     for u in users:
         u.has_role = u.username in roles
     return users
+
 
 def get_user_configuration(user, course_key):
     """
@@ -84,13 +91,14 @@ def get_user_configuration(user, course_key):
         For the moment only have is_muted attribute
     """
     try:
-        user_config = EolMessageUserConfiguration.objects.get(user_id=user.id, course_id=course_key)
+        user_config = EolMessageUserConfiguration.objects.get(
+            user_id=user.id, course_id=course_key)
         return {
-            "is_muted" : user_config.is_muted,
+            "is_muted": user_config.is_muted,
         }
     except EolMessageUserConfiguration.DoesNotExist:
         return {
-            "is_muted" : False,
+            "is_muted": False,
         }
 
 
@@ -100,30 +108,31 @@ def get_student_chats(request, course_id):
         max_viewed will be 'False' if the user has new messages
     """
     user_id = request.user.id
-    
+
     # getting user messages as sender or receiver
     user_chats = EolMessage.objects.filter(
         Q(sender_user=user_id) | Q(receiver_user=user_id),
-        course_id = course_id,
+        course_id=course_id,
         deleted_at__isnull=True
     ).values(
-        'sender_user__profile__name', 
+        'sender_user__profile__name',
         'receiver_user__profile__name',
         'sender_user__username',
         'receiver_user__username'
     ).annotate(
-        min_viewed = Min('viewed'),
-        max_date = Max('created_at')
+        min_viewed=Min('viewed'),
+        max_date=Max('created_at')
     ).order_by('-max_date')
 
     user_chats = list(user_chats)
 
     # "delete" duplicated
-    users_already = [] # list of other students usernames
+    users_already = []  # list of other students usernames
     new_user_chats = []
     roles = get_access_roles(course_id)
     for u in user_chats:
-        other_user = u["sender_user__username"] if u["sender_user__username"] != request.user.username else u["receiver_user__username"] # get student username
+        # get student username
+        other_user = u["sender_user__username"] if u["sender_user__username"] != request.user.username else u["receiver_user__username"]
         if other_user not in users_already:
             users_already.append(other_user)
             u["has_role"] = other_user in roles
@@ -131,6 +140,7 @@ def get_student_chats(request, course_id):
 
     data = json.dumps(new_user_chats, default=json_util.default)
     return HttpResponse(data)
+
 
 def get_access_roles(course_id):
     """
@@ -146,6 +156,7 @@ def get_access_roles(course_id):
     )
     return list(roles)
 
+
 def get_messages(request, username, course_id):
     """
         get_messages return json with the messages between two users
@@ -155,14 +166,14 @@ def get_messages(request, username, course_id):
     messages = EolMessage.objects.filter(
         Q(sender_user=user_id) | Q(receiver_user=user_id),
         Q(sender_user__username=username) | Q(receiver_user__username=username),
-        course_id = course_id,
-        deleted_at__isnull = True
+        course_id=course_id,
+        deleted_at__isnull=True
     ).values(
-        'sender_user__profile__name', 
-        'receiver_user__profile__name', 
+        'sender_user__profile__name',
+        'receiver_user__profile__name',
         'receiver_user__username',
-        'text', 
-        'viewed', 
+        'text',
+        'viewed',
         'created_at'
     ).order_by('created_at')
     data = json.dumps(list(messages), default=json_util.default)
@@ -172,10 +183,11 @@ def get_messages(request, username, course_id):
     '''
     not_viewed = messages.filter(
         receiver_user=user_id,
-        viewed = False
+        viewed=False
     ).update(viewed=True)
-    
+
     return HttpResponse(data)
+
 
 def new_message(request):
     """
@@ -195,11 +207,12 @@ def new_message(request):
 
     message = EolMessage.objects.create(
         course_id=course_id,
-        sender_user = user,
-        receiver_user = other_user,
+        sender_user=user,
+        receiver_user=other_user,
         text=message.strip()
     )
     return HttpResponse(status=201)
+
 
 def update_user_configuration(request, course_id):
     """
@@ -212,7 +225,8 @@ def update_user_configuration(request, course_id):
     user = request.user
     # change is_muted attribute. Create if doesn't exist
     try:
-        user_config = EolMessageUserConfiguration.objects.get(user_id=user.id, course_id=course_id)
+        user_config = EolMessageUserConfiguration.objects.get(
+            user_id=user.id, course_id=course_id)
         user_config.is_muted = not user_config.is_muted
         user_config.save()
         return HttpResponse(status=200)
