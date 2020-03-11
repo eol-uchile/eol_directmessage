@@ -15,6 +15,11 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 from student.tests.factories import UserFactory, CourseEnrollmentFactory
 
+import views
+
+from models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration
+
+USER_COUNT = 11
 
 class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
     def setUp(self):
@@ -33,18 +38,48 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
             password = 'test'
 
             # Create the student
-            self.student = UserFactory(username=uname, password=password, email=email)
+            self.main_student = UserFactory(username=uname, password=password, email=email)
 
             # Enroll the student in the course
-            CourseEnrollmentFactory(user=self.student, course_id=self.course.id)
+            CourseEnrollmentFactory(user=self.main_student, course_id=self.course.id)
 
             # Log the student in
-            self.client = Client()
-            assert_true(self.client.login(username=uname, password=password))
+            self.main_client = Client()
+            assert_true(self.main_client.login(username=uname, password=password))
+        
+        # Create users and enroll
+        self.users = [UserFactory.create() for _ in range(USER_COUNT)]
+        for user in self.users:
+            CourseEnrollmentFactory.create(user=user, course_id=self.course.id)
 
     def test_render_page(self):
-
+        """
+            Test render page with three cases:
+                1. User not logged
+                2. User logged but not enrolled
+                3. User logged and enrolled
+        """
+        uname = 'student_not_enrolled'
+        email = 'student_not_enrolled@edx.org'
+        password = 'test'
         url = reverse('directmessage_view',
                       kwargs={'course_id': self.course.id})
-        self.response = self.client.get(url)
-        self.assertEqual(self.response.status_code, 200)
+
+        student_not_enrolled = UserFactory(username=uname, password=password, email=email) # Create the student
+
+        # Student without login
+        client = Client() 
+        response = client.get(url)
+        self.assertEqual(response.status_code, 302) # Redirect to login
+
+        # Student logged but not enrolled
+        client.login(username=uname, password=password)
+        response = client.get(url)
+        self.assertEqual(response.status_code, 404) # Show error 404
+
+        # Student logged and enrolled
+        CourseEnrollmentFactory(user=student_not_enrolled, course_id=self.course.id)
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200) # Correct render page
+
+        

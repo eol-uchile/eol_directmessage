@@ -12,7 +12,7 @@ from opaque_keys.edx.keys import CourseKey
 from django.contrib.auth.models import User
 
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from bson import json_util
 import json
 from django.core import serializers
@@ -31,11 +31,21 @@ DEFAULT_USERNAME = 'DEFAULT_USERNAME_EOLDIRECTMESSAGE'
 
 class EolDirectMessageFragmentView(EdxFragmentView):
     def render_to_fragment(self, request, course_id, **kwargs):
+        if(not self.has_page_access(request.user, course_id)):
+            raise Http404()
         context = _get_context(request, course_id)
         html = render_to_string(
             'eol_directmessage/eol_directmessage_fragment.html', context)
         fragment = Fragment(html)
         return fragment
+
+    def has_page_access(self, user, course_id):
+        course_key = CourseKey.from_string(course_id)
+        return User.objects.filter(
+            courseenrollment__course_id=course_key,
+            courseenrollment__is_active=1,
+            pk = user.id
+        ).exists()
 
 
 def _get_context(request, course_id):
@@ -44,7 +54,7 @@ def _get_context(request, course_id):
     """
     course_key = CourseKey.from_string(course_id)
     course = get_course_with_access(request.user, "load", course_key)
-    enrolled_students = get_all_students(request.user.id, course_id)
+    enrolled_students = _get_all_students(request.user.id, course_id)
     user_configuration = get_user_configuration(request.user, course_key)
     return {
         "course": course,
@@ -70,7 +80,7 @@ def _get_context(request, course_id):
     }
 
 
-def get_all_students(user_id, course_id):
+def _get_all_students(user_id, course_id):
     """
         Get all student enrolled in the course (except user logged)
     """
