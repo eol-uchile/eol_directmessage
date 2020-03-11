@@ -14,7 +14,9 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 
 from xmodule.modulestore.tests.factories import CourseFactory
 from student.tests.factories import UserFactory, CourseEnrollmentFactory
+from opaque_keys.edx.keys import CourseKey
 
+from six import text_type
 import views
 
 from models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration
@@ -59,13 +61,13 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
                 2. User logged but not enrolled
                 3. User logged and enrolled
         """
-        uname = 'student_not_enrolled'
-        email = 'student_not_enrolled@edx.org'
+        uname = 'test_student'
+        email = 'test_student@edx.org'
         password = 'test'
         url = reverse('directmessage_view',
                       kwargs={'course_id': self.course.id})
 
-        student_not_enrolled = UserFactory(username=uname, password=password, email=email) # Create the student
+        test_student = UserFactory(username=uname, password=password, email=email) # Create the student
 
         # Student without login
         client = Client() 
@@ -78,8 +80,36 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
         self.assertEqual(response.status_code, 404) # Show error 404
 
         # Student logged and enrolled
-        CourseEnrollmentFactory(user=student_not_enrolled, course_id=self.course.id)
+        CourseEnrollmentFactory(user=test_student, course_id=self.course.id)
         response = client.get(url)
         self.assertEqual(response.status_code, 200) # Correct render page
 
-        
+    def test_get_all_students(self):
+        """
+            Test _get_all_students function. It returns an array of users (without logged user).
+        """
+        enrolled_students = views._get_all_students(self.main_student.id, text_type(self.course.id))
+        self.assertEqual(len(enrolled_students), USER_COUNT) # Check length of enrolled students without logged user
+
+    def test_get_user_configuration(self):
+        """
+            Test get_user_configuration. At the moment only is_muted attribute
+            Three cases:
+                1. Without configuration
+                2. With is_muted true
+                3. With is_muted false
+        """
+        config = views._get_user_configuration(self.main_student, self.course.id) # Without configuration
+        self.assertEqual(config['is_muted'], False)
+
+        user_config = EolMessageUserConfiguration.objects.create(
+            user_id=self.main_student.id,
+            course_id=self.course.id
+        ) 
+        config = views._get_user_configuration(self.main_student, self.course.id) # With is_muted true (default when create)
+        self.assertEqual(config['is_muted'], True)
+
+        user_config.is_muted = False
+        user_config.save()
+        config = views._get_user_configuration(self.main_student, self.course.id) # With is_muted false
+        self.assertEqual(config['is_muted'], False)

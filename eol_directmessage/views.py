@@ -55,7 +55,7 @@ def _get_context(request, course_id):
     course_key = CourseKey.from_string(course_id)
     course = get_course_with_access(request.user, "load", course_key)
     enrolled_students = _get_all_students(request.user.id, course_id)
-    user_configuration = get_user_configuration(request.user, course_key)
+    user_configuration = _get_user_configuration(request.user, course_key)
     return {
         "course": course,
         "students": enrolled_students,
@@ -95,7 +95,7 @@ def _get_all_students(user_id, course_id):
     return users
 
 
-def get_user_configuration(user, course_key):
+def _get_user_configuration(user, course_key):
     """
         Get user configuration
         For the moment only have is_muted attribute
