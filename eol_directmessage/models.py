@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 
 
 class EolMessage(models.Model):
-
     course_id = models.CharField(max_length=50)
     sender_user = models.ForeignKey(
         User,
@@ -25,6 +24,19 @@ class EolMessage(models.Model):
     def __str__(self):
         return '[%s](%s) %s -> %s' % (self.created_at, self.course_id,
                                       self.sender_user.username, self.receiver_user.username)
+
+
+class EolMessageFilter(models.Model):
+    """
+        Eol Message Filter by course_id. If only_staff:
+        True: The student will be able to talk only with the staff of the course
+        False: The student will be able to talk with staff and other students of the course
+    """
+    course_id = models.CharField(max_length=50, unique=True)
+    only_staff = models.BooleanField(null=False, blank=False)
+
+    def __str__(self):
+        return '[%s] only_staff -> %s' % (self.course_id, self.only_staff)
 
 
 class EolMessageConfiguration(models.Model):

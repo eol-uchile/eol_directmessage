@@ -244,6 +244,7 @@ $( document ).ready(function() {
                 for(chat of user_data) {
                     generate_list_html(chat);
                 }
+                check_all_student_length();
                 // Click handler. Show users messages on click.
                 $('.user-list').click(function() {
                     other_username = $(this).attr('id');

@@ -46,7 +46,7 @@
     }
 
 </style>
-
+${only_staff_filter}
 <main id="main" aria-label="Content" tabindex="-1">
     <div class="container mb-3">
         <div class="row chat-header mt-4">
@@ -95,23 +95,27 @@
             
             <div class="col-md-12 my-2">
                 <p class="dm-header">Iniciar una nueva conversación</p>
-                <p class="mt-2"><small>Selecciona si quieres hablar con el equipo docente o con otros estudiantes del curso</small></p>
+                % if not only_staff_filter:
+                    <p class="mt-2"><small>Selecciona si quieres hablar con el equipo docente o con otros estudiantes del curso</small></p>
+                % endif
             </div>
             <div class="col-md-12 mb-2">
                 <a class="new-chat-filter filter-staff btn btn-info" style="line-height: 1" href="javascript:void(0);">
                     <span class="icon fa fa-graduation-cap" aria-hidden="true"></span>
                     Equipo Docente
                 </a>
-                <a class="new-chat-filter filter-no-staff btn btn-outline-info" style="line-height: 1" href="javascript:void(0);">
-                    Otros Estudiantes
-                </a>
+                % if not only_staff_filter:
+                    <a class="new-chat-filter filter-no-staff btn btn-outline-info" style="line-height: 1" href="javascript:void(0);">
+                        Otros Estudiantes
+                    </a>
+                % endif
             </div>
             <div class="col-md-12 mt-2">
                 <input type="text" id="search_input" placeholder="Buscar por nombre">
                 <ul class="list_container" id="all_students_list">
                     %for student in students:
                         <%
-                            # display only student will role (staff)
+                            # display only student with role (staff)
                             display = "" if student.has_role else "none"
                         %>
                     <li class="student-list list-${student.username}">
