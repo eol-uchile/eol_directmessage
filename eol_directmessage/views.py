@@ -2,11 +2,13 @@
 from __future__ import unicode_literals
 
 from courseware.courses import get_course_with_access
+from courseware.access import has_access
 from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
 from web_fragments.fragment import Fragment
 
 from openedx.core.djangoapps.plugin_api.views import EdxFragmentView
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 
 from opaque_keys.edx.keys import CourseKey
 from django.contrib.auth.models import User
@@ -18,7 +20,7 @@ import json
 from django.core import serializers
 
 from django.db.models import Q, Min, Max
-from models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration
+from models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration, EolMessageFilter
 from student.models import CourseAccessRole
 
 import logging
@@ -27,6 +29,7 @@ logger = logging.getLogger(__name__)
 # Default username used to create url_get_message. It will be replaced in
 # the javascript
 DEFAULT_USERNAME = 'DEFAULT_USERNAME_EOLDIRECTMESSAGE'
+DEFAULT_ONLY_STAFF = False
 
 
 class EolDirectMessageFragmentView(EdxFragmentView):
@@ -44,7 +47,7 @@ class EolDirectMessageFragmentView(EdxFragmentView):
         return User.objects.filter(
             courseenrollment__course_id=course_key,
             courseenrollment__is_active=1,
-            pk = user.id
+            pk=user.id
         ).exists()
 
 
@@ -56,12 +59,14 @@ def _get_context(request, course_id):
     course = get_course_with_access(request.user, "load", course_key)
     enrolled_students = _get_all_students(request.user.id, course_id)
     user_configuration = _get_user_configuration(request.user, course_key)
+    only_staff_filter = _get_only_staff_filter(request, course)
     return {
         "course": course,
         "students": enrolled_students,
         "user": request.user,
         "username": request.user.profile.name,
         "user_config": user_configuration,
+        "only_staff_filter": only_staff_filter,
         "url_get_student_chats": reverse(
             'get_student_chats',
             kwargs={
@@ -78,6 +83,23 @@ def _get_context(request, course_id):
             kwargs={
                 'course_id': course_id}),
     }
+
+
+def _get_only_staff_filter(request, course):
+    """
+        Reason: Some courses / Sites wants a chat between student-staff (without chats student-student)
+        Return only_staff filter
+        If user is staff or instructor, default is TRUE
+        Get value from EolMessage model (by Course) or Settings (by Site)
+    """
+    if(bool(has_access(request.user, 'staff', course)) or bool(has_access(request.user, 'instructor', course))):
+        return False
+    try:
+        course_filter = EolMessageFilter.objects.get(course_id=course.id)
+        return course_filter.only_staff
+    except EolMessageFilter.DoesNotExist:
+        return configuration_helpers.get_value(
+            'EOL_DIRECTMESSAGE_ONLY_STAFF', DEFAULT_ONLY_STAFF)
 
 
 def _get_all_students(user_id, course_id):
