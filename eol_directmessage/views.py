@@ -59,7 +59,7 @@ def _get_context(request, course_id):
     course = get_course_with_access(request.user, "load", course_key)
     enrolled_students = _get_all_students(request.user.id, course_id)
     user_configuration = _get_user_configuration(request.user, course_key)
-    only_staff_filter = _get_only_staff_filter(request, course)
+    only_staff_filter = _get_only_staff_filter(request.user, course)
     return {
         "course": course,
         "students": enrolled_students,
@@ -85,14 +85,14 @@ def _get_context(request, course_id):
     }
 
 
-def _get_only_staff_filter(request, course):
+def _get_only_staff_filter(user, course):
     """
         Reason: Some courses / Sites wants a chat between student-staff (without chats student-student)
         Return only_staff filter
         If user is staff or instructor, default is TRUE
         Get value from EolMessage model (by Course) or Settings (by Site)
     """
-    if(bool(has_access(request.user, 'staff', course)) or bool(has_access(request.user, 'instructor', course))):
+    if(bool(has_access(user, 'staff', course)) or bool(has_access(user, 'instructor', course))):
         return False
     try:
         course_filter = EolMessageFilter.objects.get(course_id=course.id)
@@ -136,7 +136,7 @@ def _get_user_configuration(user, course_key):
 
 def get_student_chats(request, course_id):
     """
-        get_student_chats return json with the user chats.
+        get_student_chats return json with the user chats (usernames).
         max_viewed will be 'False' if the user has new messages
     """
     user_id = request.user.id
