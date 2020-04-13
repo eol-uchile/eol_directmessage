@@ -67,15 +67,24 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
                     password=password))
 
             # Create and Enroll staff user
-            self.staff_user = UserFactory(username='staff_user', password='test', email='staff@edx.org', is_staff=True)
-            CourseEnrollmentFactory(user=self.staff_user, course_id=self.course.id)
+            self.staff_user = UserFactory(
+                username='staff_user',
+                password='test',
+                email='staff@edx.org',
+                is_staff=True)
+            CourseEnrollmentFactory(
+                user=self.staff_user,
+                course_id=self.course.id)
 
             role_staff = CourseStaffRole(self.course.id)
             role_staff.add_users(self.staff_user)
 
             # Log the user staff in
             self.staff_client = Client()
-            assert_true(self.staff_client.login(username='staff_user', password='test'))
+            assert_true(
+                self.staff_client.login(
+                    username='staff_user',
+                    password='test'))
 
         # Create users and enroll
         self.users = [UserFactory.create() for _ in range(USER_COUNT)]
@@ -88,6 +97,7 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
                 1. User not logged
                 2. User logged but not enrolled
                 3. User logged and enrolled
+                4. Test only staff filter
         """
         uname = 'test_student'
         email = 'test_student@edx.org'
@@ -115,6 +125,23 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)  # Correct render page
 
+        # Test only staff filter
+        with with_site_configuration_context(configuration={'EOL_DIRECTMESSAGE_ONLY_STAFF': False}):
+            response = client.get(url)
+            content = response.content
+            # Show no-staff users
+            self.assertIn(
+                'new-chat-filter filter-no-staff',
+                content.decode('utf-8'))
+
+        with with_site_configuration_context(configuration={'EOL_DIRECTMESSAGE_ONLY_STAFF': True}):
+            response = client.get(url)
+            content = response.content
+            # Don't show no-staff users
+            self.assertNotIn(
+                'new-chat-filter filter-no-staff',
+                content.decode('utf-8'))
+
     def test_get_all_students(self):
         """
             Test _get_all_students function. It returns an array of users (without logged user).
@@ -122,7 +149,10 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
         enrolled_students = views._get_all_students(
             self.main_student.id, text_type(self.course.id))
         # Check length of enrolled students without logged user
-        self.assertEqual(len(enrolled_students), USER_COUNT+1) # +1 -> Staff User
+        self.assertEqual(
+            len(enrolled_students),
+            USER_COUNT +
+            1)  # +1 -> Staff User
 
     def test_get_user_configuration(self):
         """
@@ -151,7 +181,6 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
             self.main_student, self.course.id)  # With is_muted false
         self.assertEqual(config['is_muted'], False)
 
-    
     def test_get_only_staff_filter(self):
         """
             Test get only staff filter with staff user and student.
@@ -160,21 +189,24 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
                 2. Student user: Models > Site Configurations > Default value ('False')
         """
         # Test staff_user always return False
-        only_staff_filter = views._get_only_staff_filter(self.staff_user, self.course)
+        only_staff_filter = views._get_only_staff_filter(
+            self.staff_user, self.course)
         self.assertEqual(only_staff_filter, False)
 
         # Test student. By default (without any configuration) return False
-        only_staff_filter = views._get_only_staff_filter(self.main_student, self.course)
+        only_staff_filter = views._get_only_staff_filter(
+            self.main_student, self.course)
         self.assertEqual(only_staff_filter, False)
 
         # Test with configurations
-        
+
         # Test student with site configuration (only_staff)
         test_config = {
-            'EOL_DIRECTMESSAGE_ONLY_STAFF' : True,
+            'EOL_DIRECTMESSAGE_ONLY_STAFF': True,
         }
         with with_site_configuration_context(configuration=test_config):
-            only_staff_filter = views._get_only_staff_filter(self.main_student, self.course)
+            only_staff_filter = views._get_only_staff_filter(
+                self.main_student, self.course)
             self.assertEqual(only_staff_filter, True)
 
             # Test student with site and course configuration (in models)
@@ -182,15 +214,18 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
                 course_id=self.course.id,
                 only_staff=False,
             )
-            only_staff_filter = views._get_only_staff_filter(self.main_student, self.course)
+            only_staff_filter = views._get_only_staff_filter(
+                self.main_student, self.course)
             self.assertEqual(only_staff_filter, False)
 
             course_filter.only_staff = True
             course_filter.save()
-            only_staff_filter = views._get_only_staff_filter(self.main_student, self.course)
+            only_staff_filter = views._get_only_staff_filter(
+                self.main_student, self.course)
             self.assertEqual(only_staff_filter, True)
 
-            only_staff_filter = views._get_only_staff_filter(self.staff_user, self.course)
+            only_staff_filter = views._get_only_staff_filter(
+                self.staff_user, self.course)
             self.assertEqual(only_staff_filter, False)
 
     def test_get_student_chats(self):
@@ -198,7 +233,10 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
             Test get_student_chats
         """
         # Without chats return empty array
-        response = self.main_client.get(reverse('get_student_chats',kwargs={'course_id': self.course.id}))
+        response = self.main_client.get(
+            reverse(
+                'get_student_chats', kwargs={
+                    'course_id': self.course.id}))
         self.assertEqual(response.content, '[]')
 
         # Create a message
@@ -210,9 +248,14 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
         )
 
         # With one chat. Message not viewed
-        response = self.main_client.get(reverse('get_student_chats',kwargs={'course_id': self.course.id}))
+        response = self.main_client.get(
+            reverse(
+                'get_student_chats', kwargs={
+                    'course_id': self.course.id}))
         data = json.loads(response.content)
-        self.assertEqual(data[0]['receiver_user__username'], self.staff_user.username)
+        self.assertEqual(
+            data[0]['receiver_user__username'],
+            self.staff_user.username)
         self.assertEqual(data[0]['min_viewed'], False)
         self.assertEqual(len(data), 1)
 
@@ -228,7 +271,10 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
             receiver_user=self.main_student,
             text='test_message2'
         )
-        response = self.main_client.get(reverse('get_student_chats',kwargs={'course_id': self.course.id}))
+        response = self.main_client.get(
+            reverse(
+                'get_student_chats', kwargs={
+                    'course_id': self.course.id}))
         data = json.loads(response.content)
         self.assertEqual(len(data), 2)
 
@@ -245,3 +291,137 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
         role.add_users(instructor)
         roles = views.get_access_roles(text_type(self.course.id))
         self.assertEqual(len(roles), 2)
+
+    def test_get_messages(self):
+        """
+            Test get messages request
+            1. Without messages
+            2. With one message
+                2.a Aditional check to viewed attribute before/after get_message
+        """
+        # Create another student
+        test_student = UserFactory(
+            username='test_student',
+            password='test_password',
+            email='test@mail.mail')
+        CourseEnrollmentFactory(user=test_student, course_id=self.course.id)
+
+        # Test without messages
+        response = self.main_client.get(
+            reverse(
+                'get_messages',
+                kwargs={
+                    'username': test_student.username,
+                    'course_id': self.course.id}))
+        data = json.loads(response.content)
+        self.assertEqual(data, [])  # Without messages
+
+        # Create a message
+        message = EolMessage.objects.create(
+            course_id=self.course.id,
+            sender_user=test_student,
+            receiver_user=self.main_student,
+            text='test_message'
+        )
+        # Check if message is not viewed
+        not_viewed = EolMessage.objects.filter(
+            sender_user=test_student,
+            receiver_user=self.main_student.id,
+            viewed=False
+        )
+        # User has not_viewed messages before get_message
+        self.assertEqual(not_viewed.exists(), True)
+
+        # Test with one message
+        response = self.main_client.get(
+            reverse(
+                'get_messages',
+                kwargs={
+                    'username': test_student.username,
+                    'course_id': self.course.id}))
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 1)  # With one messages
+
+        # Check if message is viewed
+        not_viewed = EolMessage.objects.filter(
+            sender_user=test_student,
+            receiver_user=self.main_student.id,
+            viewed=False
+        )
+        # User doesn't have not_viewed message after get_message
+        self.assertEqual(not_viewed.exists(), False)
+
+    def test_new_messages(self):
+        """
+            Test new messages request
+            -> Check count of messages between 2 users
+        """
+        # Create another student
+        test_student = UserFactory(
+            username='test_student',
+            password='test_password',
+            email='test@mail.mail')
+        CourseEnrollmentFactory(user=test_student, course_id=self.course.id)
+        # Check count of messages
+        messages = EolMessage.objects.filter(
+            sender_user=self.main_student.id,
+            receiver_user=test_student
+        )
+        self.assertEqual(messages.count(), 0)
+        # Make Post
+        post_body = {
+            'message': 'new_message',
+            'other_username': test_student.username,
+            'course_id': self.course.id
+        }
+        response = self.main_client.post(reverse('new_message'), post_body)
+        # Check response status
+        self.assertEqual(response.status_code, 201)
+        # Check count of messages
+        messages = EolMessage.objects.filter(
+            sender_user=self.main_student.id,
+            receiver_user=test_student
+        )
+        self.assertEqual(messages.count(), 1)
+
+    def test_update_user_config(self):
+        """
+            Test update_user_config request
+            1. Check if user configuration does not exists by default
+            2. Make Post, check creation status code, check if user configuration exists, check if is_muted is True by default
+            3. Make Post, check update status code, check if user configuration count is alwats '1', check if is_muted changed (False)
+        """
+        # Check user configuration by default
+        user_config = EolMessageUserConfiguration.objects.filter(
+            user_id=self.main_student.id, course_id=self.course.id)
+        self.assertEqual(user_config.count(), 0)
+
+        # Make Post
+        response = self.main_client.post(
+            reverse(
+                'update_user_configuration',
+                kwargs={
+                    'course_id': self.course.id}),
+            {})
+        # (Creation)
+        self.assertEqual(response.status_code, 201)
+        # Check user configuration and is_muted
+        user_config = EolMessageUserConfiguration.objects.filter(
+            user_id=self.main_student.id, course_id=self.course.id)
+        self.assertEqual(user_config.count(), 1)
+        self.assertEqual(user_config.first().is_muted, True)
+
+        # Make Post
+        response = self.main_client.post(
+            reverse(
+                'update_user_configuration',
+                kwargs={
+                    'course_id': self.course.id}),
+            {})
+        # (Update)
+        self.assertEqual(response.status_code, 200)
+        # Check user configuration and is_muted
+        user_config = EolMessageUserConfiguration.objects.filter(
+            user_id=self.main_student.id, course_id=self.course.id)
+        self.assertEqual(user_config.count(), 1)
+        self.assertEqual(user_config.first().is_muted, False)
