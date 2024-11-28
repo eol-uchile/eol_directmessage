@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
-from courseware.courses import get_course_with_access
-from courseware.access import has_access
+
+from lms.djangoapps.courseware.courses import get_course_with_access
+from lms.djangoapps.courseware.access import has_access
+
 from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
 from web_fragments.fragment import Fragment
@@ -20,8 +21,9 @@ import json
 from django.core import serializers
 
 from django.db.models import Q, Min, Max
-from models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration, EolMessageFilter
+from .models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration, EolMessageFilter
 from student.models import CourseAccessRole
+
 
 import logging
 logger = logging.getLogger(__name__)

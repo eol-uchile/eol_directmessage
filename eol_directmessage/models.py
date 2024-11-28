@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -11,11 +10,11 @@ class EolMessage(models.Model):
     sender_user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="sender_user")
+        related_name="eol_message_sender_user")
     receiver_user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="receiver_user")
+        related_name="eol_message_receiver_user")
     text = models.TextField()
     viewed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

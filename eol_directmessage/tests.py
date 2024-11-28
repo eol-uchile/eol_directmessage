@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
-from openedx.core.lib.tests.tools import assert_true
-from mock import patch, Mock
 
 
 from django.test import TestCase, Client
@@ -17,17 +14,17 @@ from xmodule.modulestore import ModuleStoreEnum
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 
 from xmodule.modulestore.tests.factories import CourseFactory
-from student.tests.factories import UserFactory, CourseEnrollmentFactory
+from common.djangoapps.student.tests.factories import UserFactory, CourseEnrollmentFactory
 from lms.djangoapps.courseware.tests.factories import StaffFactory
 from student.roles import CourseInstructorRole, CourseStaffRole
 from opaque_keys.edx.keys import CourseKey
 
 from six import text_type
-import views
+from . import views
 
 import json
 
-from models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration, EolMessageFilter
+from .models import EolMessage, EolMessageConfiguration, EolMessageUserConfiguration, EolMessageFilter
 
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 
@@ -61,7 +58,7 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
 
             # Log the student in
             self.main_client = Client()
-            assert_true(
+            self.assertTrue(
                 self.main_client.login(
                     username=uname,
                     password=password))
@@ -81,7 +78,7 @@ class TestDirectMessage(UrlResetMixin, ModuleStoreTestCase):
 
             # Log the user staff in
             self.staff_client = Client()
-            assert_true(
+            self.assertTrue(
                 self.staff_client.login(
                     username='staff_user',
                     password='test'))

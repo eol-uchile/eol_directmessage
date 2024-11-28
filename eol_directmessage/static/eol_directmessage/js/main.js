@@ -207,6 +207,7 @@ $( document ).ready(function() {
     * Check students length (new-chat list) and show empty message
     */
     function check_all_student_length() {
+        console.log("-----------------------------------");
         if ($('.student-list a:visible').length == 0) {
             $('#all_students_list_status').html("<strong>No hay usuarios para comenzar una nueva conversación</strong>");
         } else {

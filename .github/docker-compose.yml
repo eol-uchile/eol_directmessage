@@ -14,11 +14,9 @@ services:
     restart: unless-stopped
 
   lms:
-    image: eoluchile/edx-platform:ironwood
+    image:  ghcr.io/eol-uchile/edx-platform:testing-eol-koa
     volumes:
-      - ../:/openedx/requirements/eol_directmessage
+      - ../:/openedx/requirements/app
     depends_on:
       - memcached
       - mongodb
-
-
